@@ -3,7 +3,7 @@ from openai import OpenAI
 
 client = OpenAI(
     # This is the default and can be omitted
-    api_key="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",
+    api_key="API_KEY",
 )
 
 ideas = []
