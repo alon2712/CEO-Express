@@ -1,0 +1,17 @@
+To use app:
+    - I made it easier and it can be done through front-end directory
+    1. cd front-end
+    2. npm run start-backend
+    3. Open new terminal
+    4. cd front-end
+    5. npm run start
+
+If you get errors with the virtual enviorment or cors:
+ - cd BackEnd
+ - source env/bin/activate
+ - pip install -U flask-cors
+
+
+ Location: 
+ - actual file using flaks is Backend/base.py
+ - typescript react code: front-end/src/App.tsx
