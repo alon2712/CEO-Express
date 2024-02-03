@@ -30,9 +30,9 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        cd flask-app  # replace with your Flask app's directory
+        cd flask-app 
         pip install -r requirements.txt
     - name: Run tests for Flask app
       run: |
-        cd BackEnd  # replace with your Flask app's directory
-        python -m pytest  # or your specific command to run tests
+        cd BackEnd  
+        python -m pytest  
