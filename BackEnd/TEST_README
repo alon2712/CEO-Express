@@ -1,0 +1,5 @@
+1.  Make sure you have python set up (a recent version)
+2.  CD into the backend directory
+3.  check if pytest is installed ('pytest --version')
+4.  If pytest is not installed, run ('pip install -U pytest')
+5.  run ('pytest')
