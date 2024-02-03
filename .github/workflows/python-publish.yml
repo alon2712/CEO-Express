@@ -26,6 +26,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install build
         pip install flask
+        pip install flask_cors
         pip install pytest
         pytest
   
