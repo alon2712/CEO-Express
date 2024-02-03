@@ -27,6 +27,7 @@ jobs:
         pip install build
         pip install flask
         pip install flask_cors
+        pip install base
         pip install pytest
         pytest
   
