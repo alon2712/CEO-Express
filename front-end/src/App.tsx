@@ -13,7 +13,7 @@ export default class App extends Component<{}, AppState>{
   constructor(props: {}) {
     super(props);
 
-   this.state ={page:"explore"}
+   this.state ={page:"ideation"}
 }
 render = (): JSX.Element => {
   switch (this.state.page) {
