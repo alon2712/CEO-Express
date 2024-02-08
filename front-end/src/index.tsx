@@ -3,15 +3,20 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import { ChakraProvider } from '@chakra-ui/react';
+import theme from './theme/theme';
 
-const main: HTMLElement|null = document.getElementById('root');
+const main: HTMLElement | null = document.getElementById('root');
 if (main === null)
-    throw new Error("Uh oh! HTML is missing 'main' element");
+  throw new Error("Uh oh! HTML is missing 'main' element");
 const root = ReactDOM.createRoot(main);
 root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
+
+  <ChakraProvider theme={theme}>
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>
+  </ChakraProvider>
 );
 
 // If you want to start measuring performance in your app, pass a function
