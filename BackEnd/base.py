@@ -12,6 +12,18 @@ def tester():
     }
     return response_body
 
+# Just an example on how to use the api
+def saveData(info):
+    #save info to DB
+    success = True
+    return success
+
+def accessData(info):
+    testResult = "test"
+    return testResult
+
+def doComputation(info, name):
+    return info
 
 
 
