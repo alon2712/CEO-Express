@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import IdeaList from '../components/IdeaList';
+import IdeaView from '../components/IdeaView';
 
 
 
@@ -10,6 +10,6 @@ export default class Ideation extends Component<{}, {}>{
    this.state ={}
 }
 render = (): JSX.Element => {
-  return (<div><IdeaList/></div>)
+  return (<div><IdeaView/></div>)
 };
 }

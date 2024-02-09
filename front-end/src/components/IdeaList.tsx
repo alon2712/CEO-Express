@@ -1,108 +1,84 @@
-import * as React from 'react';
-import IdeaEntry from './IdeaEntry';
-// Chakra imports
-import { Avatar, Box, Flex, FormLabel, Icon, Select, SimpleGrid, useColorModeValue } from '@chakra-ui/react';
-import Sidebar from 'components/sidebar/Sidebar';
+import React from 'react';
 
-interface IdeaListState {
+// Chakra imports
+import { Box, Button, Card, Flex, Grid, Link, Text, useColorModeValue, SimpleGrid } from '@chakra-ui/react';
+
+
+interface IdeaListProps {
     ideas: string[];
     currentIdea: string;
-    history: HistoryType[];
-    activePageId: string;
+    updateIdea: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    addIdea: () => void;
+    deleteIdea: (index: number) => void;
 }
 
-export default class IdeaList extends React.Component<{}, IdeaListState> {
-    constructor(props: {}) {
-        super(props);
+export default function IdeaList(props: IdeaListProps) {
+    // Chakra Color Mode
+    const textColor = useColorModeValue('secondaryGray.900', 'white');
+    const textColorBrand = useColorModeValue('brand.500', 'white');
 
-        let historyList:HistoryType[] = [];
-        for (let i = 0; i < 30; i++) {
-            historyList.push({ name: "Test "+i, id: "test"+i })
-          }
+    const ideaEntries = props.ideas.map((idea, index) => (
+        <div key={index} className="entry">
+            <p>{idea}</p>
+            <div className="seperator"></div>
+            <button className="delete-button" type="button" onClick={() => props.deleteIdea(index)}>x</button>
+        </div>));
 
+    return (
+        <Box pt={{ base: '180px', md: '80px', xl: '80px' }}>
+            {/* Main Fields */}
+            <Grid
+                mb='20px'
+                gridTemplateColumns={{ xl: 'repeat(3, 1fr)', '2xl': '1fr 0.46fr' }}
+                gap={{ base: '20px', xl: '20px' }}
+                display={{ base: 'block', xl: 'grid' }}>
+                <Flex flexDirection='column' gridArea={{ xl: '1 / 1 / 2 / 3', '2xl': '1 / 1 / 2 / 2' }}>
+                <Flex direction='column'>
+                    <div className="container">
+                        <div className="ideationContainer">
+                            <div className="entry-container">
+                                {ideaEntries}
+                            </div>
+                            <div className="ideationInputContainer">
+                                <input
+                                    className="idea-input"
+                                    type="text"
 
-        this.state = {
-            ideas: ["TEST", "TEST", "TEST", "TEST", "TEST", "TEST", "TEST", "TEST", "TEST", "TEST", "TEST", "TEST", "TEST"],
-            currentIdea: '',
-            history: historyList,
-            activePageId: "test1"
-
-        };
-
-        this.updateIdea = this.updateIdea.bind(this);
-        this.addIdea = this.addIdea.bind(this);
-        this.deleteIdea = this.deleteIdea.bind(this);
-    }
-
-    updateIdea(e: React.ChangeEvent<HTMLInputElement>) {
-        this.setState({ currentIdea: e.target.value });
-    }
-
-    addIdea() {
-        this.setState({
-            ideas: [...this.state.ideas, this.state.currentIdea],
-            currentIdea: ''
-        });
-    }
-
-    deleteIdea(index: number) {
-        const newIdeas = [...this.state.ideas];
-        newIdeas.splice(index, 1);
-
-        this.setState({ ideas: newIdeas });
-    }
-
-    render() {
-        const ideaEntries = this.state.ideas.map((idea, index) => (
-            <IdeaEntry ideaDescription='' ideaName={idea} ideaId='' index={index} deleteIdea={this.deleteIdea} />
-        ));
-
-        return (
-            <Box>
-
-                <Sidebar history={this.state.history} activeId={this.state.activePageId} />
-                <Box
-                    float='right'
-                    minHeight='100vh'
-                    height='100%'
-                    overflow='auto'
-                    position='relative'
-                    maxHeight='100%'
-                    w={{ base: '100%', xl: 'calc( 100% - 290px )' }}
-                    maxWidth={{ base: '100%', xl: 'calc( 100% - 290px )' }}
-                    transition='all 0.33s cubic-bezier(0.685, 0.0473, 0.346, 1)'
-                    transitionDuration='.2s, .2s, .35s'
-                    transitionProperty='top, bottom, width'
-                    transitionTimingFunction='linear, linear, ease'>
-
-<div className="container">
-                <div className="ideationContainer">
-                    <div className="entry-container">
-                        {ideaEntries}
+                                    value={props.currentIdea}
+                                    onChange={props.updateIdea}
+                                />
+                                <button
+                                    className="add-button"
+                                    type="button" onClick={props.addIdea}
+                                    disabled={!props.currentIdea}
+                                >
+                                    +
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                    <div className="ideationInputContainer">
-                    <input
-                        className="idea-input"
-                        type="text"
-                        value={this.state.currentIdea}
-                        onChange={this.updateIdea}
-                    />
-                    <button
-                        className="add-button"
-                        type="button" onClick={this.addIdea}
-                        disabled={!this.state.currentIdea}
-                    >
-                        +
-                    </button>
-                </div>
-                </div> 
-            </div>
-                </Box>
-            </Box>
-        );
-    }
+                    </Flex>
+                </Flex>
+                <Flex flexDirection='column' gridArea={{ xl: '1 / 3 / 2 / 4', '2xl': '1 / 2 / 2 / 3' }}>
+                    <Card px='0px' mb='20px'>
+                    </Card>
+                    <Card p='0px'>
+                        <Flex
+                            align={{ sm: 'flex-start', lg: 'center' }}
+                            justify='space-between'
+                            w='100%'
+                            px='22px'
+                            py='18px'>
+                            <Text color={textColor} fontSize='xl' fontWeight='600'>
+                                History
+                            </Text>
+                            <Button variant='action'>See all</Button>
+                        </Flex>
+
+                    </Card>
+                </Flex>
+            </Grid>
+            {/* Delete Product */}
+        </Box>
+    );
 }
-/*
-
-
-*/
