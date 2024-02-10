@@ -1,18 +1,13 @@
 /* eslint-disable */
 // Chakra Imports
-import { Box, Breadcrumb, BreadcrumbItem, BreadcrumbLink, Flex, Link, Text, useColorModeValue } from '@chakra-ui/react';
+import { Box, Button, Icon, Breadcrumb, BreadcrumbItem, BreadcrumbLink, Flex, Link, Text, 
+	useColorModeValue,
+	useColorMode} from '@chakra-ui/react';
 import { useState, useEffect } from 'react';
-import AdminNavbarLinks from 'components/navbar/NavbarLinksAdmin';
+import { IoMdMoon, IoMdSunny } from 'react-icons/io';
 
-export default function AdminNavbar(props: {
-	secondary: boolean;
-	message: string|boolean;
-	brandText: string;
-	logoText: string;
-	fixed: boolean;
-	onOpen: (...args: any[]) => any;
-}) {
-	const [ scrolled, setScrolled ] = useState(false);
+export default function Header(props: {}) {
+	const [scrolled, setScrolled] = useState(false);
 
 	useEffect(() => {
 		window.addEventListener('scroll', changeNavbar);
@@ -21,19 +16,18 @@ export default function AdminNavbar(props: {
 			window.removeEventListener('scroll', changeNavbar);
 		};
 	});
-
-	const { secondary,  brandText } = props;
-
+	const { colorMode, toggleColorMode } = useColorMode();
 	// Here are all the props that may change depending on navbar's type or state.(secondary, variant, scrolled)
 	let mainText = useColorModeValue('navy.700', 'white');
 	let secondaryText = useColorModeValue('gray.700', 'white');
 	let navbarPosition = 'fixed' as const;
 	let navbarFilter = 'none';
-	let navbarBackdrop = 'blur(20px)';
-	let navbarShadow = 'none';
-	let navbarBg = useColorModeValue('rgba(244, 247, 254, 0.2)', 'rgba(11,20,55,0.5)');
+	let navbarBackdrop = 'blur(10px)';
+	const navbarIcon = useColorModeValue('gray.400', 'white');
+	const navbarShadow = 'none';
+	let navbarBg = useColorModeValue('rgba(244, 247, 254, 0.2)', 'rgba(11,20,55,1)');
 	let navbarBorder = 'transparent';
-	let secondaryMargin = '0px';
+	let secondaryMargin = '-20px';
 	let paddingX = '15px';
 	let gap = '0px';
 	const changeNavbar = () => {
@@ -54,7 +48,7 @@ export default function AdminNavbar(props: {
 			backdropFilter={navbarBackdrop}
 			backgroundPosition='center'
 			backgroundSize='cover'
-			borderRadius='16px'
+			borderRadius='0px'
 			borderWidth='1.5px'
 			borderStyle='solid'
 			transitionDelay='0s, 0s, 0s, 0s'
@@ -62,14 +56,15 @@ export default function AdminNavbar(props: {
 			transition-property='box-shadow, background-color, filter, border'
 			transitionTimingFunction='linear, linear, linear, linear'
 			alignItems={{ xl: 'center' }}
-			display={secondary ? 'block' : 'flex'}
+			display={false ? 'block' : 'flex'}
 			minH='75px'
 			justifyContent={{ xl: 'center' }}
 			lineHeight='25.6px'
 			mx='auto'
 			mt={secondaryMargin}
-			pb='8px'
-			left={{ base: '12px', md: '30px', lg: '30px', xl: '30px' }}
+			pb='16px'
+			right={{ base: '12px', md: '30px', lg: '30px', xl: '30px' }}
+
 			px={{
 				sm: paddingX,
 				md: '10px'
@@ -77,7 +72,7 @@ export default function AdminNavbar(props: {
 			ps={{
 				xl: '12px'
 			}}
-			pt='8px'
+			pt='36px'
 			top={{ base: '12px', md: '16px', xl: '18px' }}
 			w={{
 				base: 'calc(100vw - 6%)',
@@ -92,6 +87,7 @@ export default function AdminNavbar(props: {
 					sm: 'column',
 					md: 'row'
 				}}
+
 				alignItems={{ xl: 'center' }}
 				mb={gap}>
 				<Box mb={{ sm: '8px', md: '0px' }}>
@@ -104,7 +100,7 @@ export default function AdminNavbar(props: {
 
 						<BreadcrumbItem color={secondaryText} fontSize='sm'>
 							<BreadcrumbLink href='#' color={secondaryText}>
-								{brandText}
+								CEO Express
 							</BreadcrumbLink>
 						</BreadcrumbItem>
 					</Breadcrumb>
@@ -125,16 +121,30 @@ export default function AdminNavbar(props: {
 						_focus={{
 							boxShadow: 'none'
 						}}>
-						{brandText}
+						CEO Express
 					</Link>
 				</Box>
 				<Box ms='auto' w={{ sm: '100%', md: 'unset' }}>
-					<AdminNavbarLinks
-						secondary={props.secondary}
-						fixed={props.fixed} 
-					/>
+					<Button
+						variant='no-hover'
+						bg='transparent'
+						p='0px'
+						minW='unset'
+						minH='unset'
+						h='18px'
+						w='max-content'
+						onClick={toggleColorMode}>
+						<Icon
+							me='10px'
+							h='18px'
+							w='18px'
+							color={navbarIcon}
+							as={colorMode === 'light' ? IoMdMoon : IoMdSunny}
+						/>
+					</Button>
+
 				</Box>
-			</Flex> 
+			</Flex>
 		</Box>
 	);
 }

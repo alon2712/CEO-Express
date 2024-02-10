@@ -1,9 +1,8 @@
 import * as React from 'react';
 import { Grid, Card, Text, Portal, Button, Avatar, Link, Box, Flex, FormLabel, Icon, Select, SimpleGrid, useColorModeValue } from '@chakra-ui/react';
 import Sidebar from 'components/sidebar/Sidebar';
-import Navbar from 'components/navbar/NavbarAdmin';
-import IdeaList from './IdeaList';
-import CheckTable from './dataTables/components/CheckTable';
+import Navbar from 'components/header/Header';
+import IdeaCheckTable from './dataTables/components/IdeaCheckTable';
 
 interface IdeaViewState {
     ideas: RowObj[];
@@ -91,7 +90,7 @@ export default class IdeaView extends React.Component<{}, IdeaViewState> {
                     </Portal>
                     <Box mt='20px' mx='auto' p={{ base: '20px', md: '30px' }} pe='20px' minH='100vh' pt='50px'>
                         <Box pt={{ base: '130px', md: '80px', xl: '80px' }}>
-                            <CheckTable tableData={this.state.ideas} />
+                            <IdeaCheckTable tableData={this.state.ideas} />
                         </Box>
                     </Box>
 
