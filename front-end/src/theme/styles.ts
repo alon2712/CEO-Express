@@ -89,6 +89,10 @@ export const globalStyles = {
 			input: {
 				color: 'gray.700'
 			},
+			textarea: {
+				color: 'gray.700'
+			},
+			
 			html: {
 				fontFamily: 'DM Sans'
 			}

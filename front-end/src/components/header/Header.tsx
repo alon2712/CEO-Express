@@ -24,10 +24,10 @@ export default function Header(props: {}) {
 	let navbarFilter = 'none';
 	let navbarBackdrop = 'blur(10px)';
 	const navbarIcon = useColorModeValue('gray.400', 'white');
-	const navbarShadow = 'none';
-	let navbarBg = useColorModeValue('rgba(244, 247, 254, 0.2)', 'rgba(11,20,55,1)');
+    const navbarShadow = useColorModeValue('0px 0px 8px 8px  rgba(31,40,75, 0.1)', '0px 0px 6px 6px  rgba(117,81,255,0.25)');
+    let navbarBg = useColorModeValue('rgba(244, 247, 254, 1)', 'rgba(31,40,75,1)');
 	let navbarBorder = 'transparent';
-	let secondaryMargin = '-20px';
+	let secondaryMargin = '0px';
 	let paddingX = '15px';
 	let gap = '0px';
 	const changeNavbar = () => {
@@ -48,22 +48,18 @@ export default function Header(props: {}) {
 			backdropFilter={navbarBackdrop}
 			backgroundPosition='center'
 			backgroundSize='cover'
-			borderRadius='0px'
+			borderRadius='0px 0px 25px 25px'
 			borderWidth='1.5px'
 			borderStyle='solid'
-			transitionDelay='0s, 0s, 0s, 0s'
-			transitionDuration=' 0.25s, 0.25s, 0.25s, 0s'
-			transition-property='box-shadow, background-color, filter, border'
-			transitionTimingFunction='linear, linear, linear, linear'
 			alignItems={{ xl: 'center' }}
-			display={false ? 'block' : 'flex'}
+			display={true ? 'block' : 'flex'}
 			minH='75px'
 			justifyContent={{ xl: 'center' }}
 			lineHeight='25.6px'
 			mx='auto'
 			mt={secondaryMargin}
 			pb='16px'
-			right={{ base: '12px', md: '30px', lg: '30px', xl: '30px' }}
+			right={{ base: '4px', md: '22px', lg: '26px', xl: '30px' }}
 
 			px={{
 				sm: paddingX,
@@ -73,7 +69,7 @@ export default function Header(props: {}) {
 				xl: '12px'
 			}}
 			pt='36px'
-			top={{ base: '12px', md: '16px', xl: '18px' }}
+			top={{ base: '0px', md: '0px', xl: '0px' }}
 			w={{
 				base: 'calc(100vw - 6%)',
 				md: 'calc(100vw - 8%)',
@@ -83,14 +79,9 @@ export default function Header(props: {}) {
 			}}>
 			<Flex
 				w='100%'
-				flexDirection={{
-					sm: 'column',
-					md: 'row'
-				}}
-
 				alignItems={{ xl: 'center' }}
 				mb={gap}>
-				<Box mb={{ sm: '8px', md: '0px' }}>
+				<Box w='max-content'>
 					<Breadcrumb>
 						<BreadcrumbItem color={secondaryText} fontSize='sm' mb='5px'>
 							<BreadcrumbLink href='#' color={secondaryText}>
@@ -100,7 +91,7 @@ export default function Header(props: {}) {
 
 						<BreadcrumbItem color={secondaryText} fontSize='sm'>
 							<BreadcrumbLink href='#' color={secondaryText}>
-								CEO Express
+								Current Page
 							</BreadcrumbLink>
 						</BreadcrumbItem>
 					</Breadcrumb>
@@ -124,14 +115,14 @@ export default function Header(props: {}) {
 						CEO Express
 					</Link>
 				</Box>
-				<Box ms='auto' w={{ sm: '100%', md: 'unset' }}>
+				<Box ms='auto' w='max-content'>
 					<Button
 						variant='no-hover'
 						bg='transparent'
 						p='0px'
 						minW='unset'
 						minH='unset'
-						h='18px'
+						
 						w='max-content'
 						onClick={toggleColorMode}>
 						<Icon

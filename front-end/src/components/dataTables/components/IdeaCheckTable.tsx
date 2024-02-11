@@ -15,25 +15,24 @@ import Card from 'components/card/Card';
 type RowObj = {
 	name: [string, boolean];
 };
- 
+
 const columnHelper = createColumnHelper<RowObj>();
 
 // const columns = columnsDataCheck;
 export default function IdeaCheckTable(props: { tableData: any }) {
 	const { tableData } = props;
-	const [ sorting, setSorting ] = React.useState<SortingState>([]);
+	const [sorting, setSorting] = React.useState<SortingState>([]);
 	const textColor = useColorModeValue('secondaryGray.900', 'white');
 	const borderColor = useColorModeValue('gray.200', 'whiteAlpha.100');
-	let defaultData= tableData;
+	let defaultData = tableData;
 	const columns = [
 		columnHelper.accessor('name', {
 			id: 'name',
 			header: () => (
-				<>
-									<Text color={textColor} fontWeight='700' fontSize='18px' mb="4px" lineHeight='100%'>
-					YOUR IDEAS
+				<Text color={textColor} fontWeight='700' fontSize='18px' mb="4px" lineHeight='100%'>
+					IDEAS
 				</Text>
-				</>
+
 			),
 			cell: (info: any) => (
 				<Flex align='center'>
@@ -43,9 +42,41 @@ export default function IdeaCheckTable(props: { tableData: any }) {
 					</Text>
 				</Flex>
 			)
+		}),
+		columnHelper.accessor('name', {
+			id: 'name',
+			header: () => (
+
+				<Text color={textColor} fontWeight='700' fontSize='18px' mb="4px" lineHeight='100%'>
+					Description
+				</Text>
+
+			),
+			cell: (info: any) => (
+				<Text color={textColor} fontSize='sm' fontWeight='700'>
+					{info.getValue()}
+				</Text>
+			)
+		}),
+		columnHelper.accessor('name', {
+			id: 'name',
+			header: () => (
+
+				<Text color={textColor} fontWeight='700' fontSize='18px' mb="4px" lineHeight='100%'>
+					Actions
+				</Text>
+
+			),
+			cell: (info: any) => (
+				<Text color={textColor} fontSize='sm' fontWeight='700'>
+					todo: add button
+				</Text>
+			)
 		})
 	];
-	const [ data, setData ] = React.useState(() => [ ...defaultData ]);
+	
+	const widthColumns = ['20%', '60%', '20%']
+	const [data, setData] = React.useState(() => [...defaultData]);
 	const table = useReactTable({
 		data,
 		columns,
@@ -57,14 +88,15 @@ export default function IdeaCheckTable(props: { tableData: any }) {
 		getSortedRowModel: getSortedRowModel(),
 		debugTable: true
 	});
+	{console.log(table.getRowModel())}
 	return (
 		<Card flexDirection='column' w='100%' px='0px' overflowX={{ sm: 'scroll', lg: 'hidden' }}>
 			<Box>
 				<Table variant='simple' color='gray.500' mb='0px' mt="0px">
 					<Thead>
 						{table.getHeaderGroups().map((headerGroup) => (
-							<Tr  key={headerGroup.id}>
-								{headerGroup.headers.map((header) => {
+							<Tr key={headerGroup.id}>
+								{headerGroup.headers.map((header, index) => {
 									return (
 										<Th
 											key={header.id}
@@ -72,6 +104,7 @@ export default function IdeaCheckTable(props: { tableData: any }) {
 											pe='10px'
 											borderColor={borderColor}
 											cursor='pointer'
+											width={widthColumns[index]}
 											onClick={header.column.getToggleSortingHandler()}>
 											<Flex
 												justifyContent='space-between'
@@ -92,13 +125,14 @@ export default function IdeaCheckTable(props: { tableData: any }) {
 					<Tbody>
 						{table.getRowModel().rows.map((row) => {
 							return (
-								<Tr key={row.id}>
-									{row.getVisibleCells().map((cell) => {
+								<Tr  w='100%'key={row.id}>
+									
+									{row.getVisibleCells().map((cell, index) => {
 										return (
 											<Td
 												key={cell.id}
+												width={widthColumns[index]}
 												fontSize={{ sm: '14px' }}
-												minW={{ sm: '150px', md: '200px', lg: 'auto' }}
 												borderColor='transparent'>
 												{flexRender(cell.column.columnDef.cell, cell.getContext())}
 											</Td>
