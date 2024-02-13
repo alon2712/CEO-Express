@@ -30,6 +30,8 @@ jobs:
         pip install base
         pip install pytest
         pip install pyodbc
-        pip install azure
-        pytest
+        pip install fastapi
+        pip install uvicorn[standard]
+        pip install pydantic
+        pip install azure-identity
   
