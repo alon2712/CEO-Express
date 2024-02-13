@@ -15,3 +15,10 @@ If you get errors with the virtual enviorment or cors:
  Location: 
  - actual file using flaks is Backend/base.py
  - typescript react code: front-end/src/App.tsx
+
+
+ need to isntall pyodbc
+  - pip3 install pyodbc
+
+  run this from backend directory within the virtual enviorment:
+  pip install -r requirements.txt
