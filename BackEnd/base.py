@@ -45,6 +45,7 @@ def getAllHistory():
         
     }
     return response_body 
+    
 """
 This endpoint gets all of the ideas and its details for a specific history.
 Called like so:
