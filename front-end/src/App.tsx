@@ -22,6 +22,11 @@ export default class App extends Component<{}, AppState>{
    this.state ={page:"ideation", subpage:"", messageFromFlask: null,historyMap: null,ideaEntries: null}
 }
 
+componentDidMount() {
+  this.getHistory();
+  this.getAllIdeas();
+}
+
 // add entry
 // addEntry = () => {
 //   axios.get('/addIdeaEntry?IdeaName=testingAPI&Description=description%20of%20idea&HistoryID=b49d01e1-9d78-41bc-9a49-d037c4747a25')
