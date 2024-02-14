@@ -4,7 +4,7 @@ import Ideation from './pages/Ideation';
 import Landing from './pages/Landing';
 import Explore from './pages/Explore';
 import axios from 'axios';
-import { useState } from 'react';
+//import { useState } from 'react';
 
 interface AppState {
   page: "landing" | "ideation" | "explore"
@@ -23,46 +23,46 @@ export default class App extends Component<{}, AppState>{
 }
 
 // add entry
-addEntry = () => {
-  axios.get('/addIdeaEntry?IdeaName=testingAPI&Description=description%20of%20idea&HistoryID=b49d01e1-9d78-41bc-9a49-d037c4747a25')
-    .then(response => {
-      if(response.data.message == 'success'){
-        console.log('Successful');
-      }
-      else{
-        console.log('Unsuccessful');
-      }
+// addEntry = () => {
+//   axios.get('/addIdeaEntry?IdeaName=testingAPI&Description=description%20of%20idea&HistoryID=b49d01e1-9d78-41bc-9a49-d037c4747a25')
+//     .then(response => {
+//       if(response.data.message == 'success'){
+//         console.log('Successful');
+//       }
+//       else{
+//         console.log('Unsuccessful');
+//       }
       
-    })
-    .catch(error => {
-      console.error('Error adding entry:', error);
-    });
-};
+//     })
+//     .catch(error => {
+//       console.error('Error adding entry:', error);
+//     });
+// };
 
 
-getHistory = () => {
-  axios.get('/getAllHistory')
-    .then(response => {
-      const historyMap: HistoryType[] = response.data;
-        this.setState({ historyMap });
+// getHistory = () => {
+//   axios.get('/getAllHistory')
+//     .then(response => {
+//       const historyMap: HistoryType[] = response.data;
+//         this.setState({ historyMap });
       
-    })
-    .catch(error => {
-      console.error('Error getting history:', error);
-    });
-};
+//     })
+//     .catch(error => {
+//       console.error('Error getting history:', error);
+//     });
+// };
 
-getAllIdeas = () => {
-  axios.get('/getAllIdeaEntriesForHistory?HistoryID=b49d01e1-9d78-41bc-9a49-d037c4747a25')
-  .then(response => {
-    const ideaEntries: IdeasEntry[] = response.data;
-      this.setState({ ideaEntries });
-  })
-  .catch(error => {
-    console.error('Error getting all ideas:', error);
-  });
+// getAllIdeas = () => {
+//   axios.get('/getAllIdeaEntriesForHistory?HistoryID=b49d01e1-9d78-41bc-9a49-d037c4747a25')
+//   .then(response => {
+//     const ideaEntries: IdeasEntry[] = response.data;
+//       this.setState({ ideaEntries });
+//   })
+//   .catch(error => {
+//     console.error('Error getting all ideas:', error);
+//   });
 
-}
+// }
 
 
 

@@ -33,7 +33,10 @@ export function SidebarHistory(props: {history: HistoryType[], activeId: string}
 											me='auto'
 											color={activeRoute(historyEntry.id.toLowerCase()) ? activeColor : inactiveColor}
 											fontWeight={activeRoute(historyEntry.id.toLowerCase()) ? 'bold' : 'normal'}>
-											{historyEntry.name}
+											
+											<button onClick={() => console.log(historyEntry.id)}>
+  												{historyEntry.name} 
+											</button>
 										</Text>
 										<Box h='36px' w='4px' bg={activeRoute(historyEntry.id.toLowerCase()) ? 'brand.400' : 'transparent'} borderRadius='5px' />
 									</HStack>

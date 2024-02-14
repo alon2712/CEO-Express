@@ -41,9 +41,7 @@ export default function Sidebar(props: {history: HistoryType[], activeId: string
 				boxShadow={shadow}>
 	
 						<Content history={props.history} activeId={props.activeId}/>
-				
-				
-				
+						
 			</Box>
 		</Box>
 	);
