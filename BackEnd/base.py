@@ -28,7 +28,7 @@ def getNewIdeas():
     ideas = request.args.get('Ideas')
     count = request.args.get('Count')
 
-    pastResults = "Swimmer"
+    pastResults = ""
     completions = []
     for i in range(int(count or 0)):
         completion = client.chat.completions.create(
