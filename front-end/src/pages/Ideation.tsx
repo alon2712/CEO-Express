@@ -10,6 +10,6 @@ export default class Ideation extends Component<{}, {}>{
    this.state ={}
 }
 render = (): JSX.Element => {
-  return (<div><IdeaView/></div>)
+  return (<div ><IdeaView/></div>)
 };
 }

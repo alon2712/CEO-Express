@@ -12,22 +12,25 @@ import {
 
 // Custom components
 import Card from 'components/card/Card';
-type RowObj = {
-	name: [string, boolean];
-};
 
-const columnHelper = createColumnHelper<RowObj>();
+
+
+interface IdeaCheckTableType{
+	tableData: IdeaEntryType[]
+}
+
+
+
 
 // const columns = columnsDataCheck;
-export default function IdeaCheckTable(props: { tableData: any }) {
-	const { tableData } = props;
+export default function IdeaCheckTable(props: IdeaCheckTableType) {
+	const columnHelper = createColumnHelper<IdeaEntryType>();
 	const [sorting, setSorting] = React.useState<SortingState>([]);
 	const textColor = useColorModeValue('secondaryGray.900', 'white');
 	const borderColor = useColorModeValue('gray.200', 'whiteAlpha.100');
-	let defaultData = tableData;
 	const columns = [
-		columnHelper.accessor('name', {
-			id: 'name',
+		columnHelper.accessor('Name', {
+			id: 'Name',
 			header: () => (
 				<Text color={textColor} fontWeight='700' fontSize='18px' mb="4px" lineHeight='100%'>
 					IDEAS
@@ -38,17 +41,17 @@ export default function IdeaCheckTable(props: { tableData: any }) {
 				<Flex align='center'>
 					<Checkbox defaultChecked={info.getValue()[1]} colorScheme='brandScheme' me='10px' />
 					<Text color={textColor} fontSize='sm' fontWeight='700'>
-						{info.getValue()[0]}
+						{info.getValue()}
 					</Text>
 				</Flex>
 			)
 		}),
-		columnHelper.accessor('name', {
-			id: 'name',
+		columnHelper.accessor('Description', {
+			id: 'Description',
 			header: () => (
 
 				<Text color={textColor} fontWeight='700' fontSize='18px' mb="4px" lineHeight='100%'>
-					Description
+					DESCRIPTION
 				</Text>
 
 			),
@@ -57,28 +60,12 @@ export default function IdeaCheckTable(props: { tableData: any }) {
 					{info.getValue()}
 				</Text>
 			)
-		}),
-		columnHelper.accessor('name', {
-			id: 'name',
-			header: () => (
-
-				<Text color={textColor} fontWeight='700' fontSize='18px' mb="4px" lineHeight='100%'>
-					Actions
-				</Text>
-
-			),
-			cell: (info: any) => (
-				<Text color={textColor} fontSize='sm' fontWeight='700'>
-					todo: add button
-				</Text>
-			)
 		})
 	];
 	
-	const widthColumns = ['20%', '60%', '20%']
-	const [data, setData] = React.useState(() => [...defaultData]);
+	const widthColumns = ['35%', '65%']
 	const table = useReactTable({
-		data,
+		data: props.tableData,
 		columns,
 		state: {
 			sorting
@@ -88,7 +75,6 @@ export default function IdeaCheckTable(props: { tableData: any }) {
 		getSortedRowModel: getSortedRowModel(),
 		debugTable: true
 	});
-	{console.log(table.getRowModel())}
 	return (
 		<Card flexDirection='column' w='100%' px='0px' overflowX={{ sm: 'scroll', lg: 'hidden' }}>
 			<Box>

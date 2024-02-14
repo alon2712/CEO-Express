@@ -1,7 +1,6 @@
 import pyodbc
 import os
 import struct
-from azure import identity
 import uuid
 
 from typing import Union
@@ -20,41 +19,38 @@ connection_string = file_contents
 app = FastAPI()
 
 def getAllHistoryQuery():
-    map = {}
+    returnList = []
     conn = get_conn()
     cursor = conn.cursor()
-    cursor.execute("SELECT HISTORYId, Name FROM History")
-    
+    cursor.execute("SELECT HistoryId, Name, UserName FROM History")
+    columns = [column[0] for column in cursor.description]
     for row in cursor.fetchall():
-        map[row.HISTORYId] = row.Name
-    return map
+        returnList.append(dict(zip(columns, row)))
+    conn.close()
+    return returnList
 
 def getAllIdeaEntriesForHistory(HistoryId):
-    map = {}
+    returnList = []
     conn = get_conn()
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM IdeaEntry WHERE HistoryId=?", HistoryId)
     columns = [column[0] for column in cursor.description]
     for row in cursor.fetchall():
-        row_dict = dict(zip(columns, row))
-        map[row_dict['IdeaEntryId']] = row_dict
+        returnList.append(dict(zip(columns, row)))
     conn.close()
-    return map
+    return returnList
 
-def addIdeaEntryQuery(ideaName, description, historyID):
-    guid = generate_custom_guid()
-    print("GUID:")
-    print(guid)
+def addIdeaEntryQuery(ideaName, description, historyId):
     conn = get_conn()
     cursor = conn.cursor()
-    domain = generate_custom_guid()
+    domain = str(uuid.uuid4())
     try:
-        cursor.execute("INSERT INTO IdeaEntry (IdeaEntryId, Name, Description, DomainName, HistoryId, IsGenerated) VALUES (?, ?, ?, ?, ?, 0)", (guid, ideaName, description, str(domain)[:30], historyID))  #uuid.UUID
+        cursor.execute("INSERT INTO IdeaEntry (Name, Description, DomainName, HistoryId, IsGenerated) VALUES ( ?, ?, ?, ?, 0)", (ideaName, description, str(domain)[:20], historyId)) 
         conn.commit()
         conn.close()
     except Exception as e:
         print("An error occurred:", e)
-        return False
+        return e 
     
     return True
 

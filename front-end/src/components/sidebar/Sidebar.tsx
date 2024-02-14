@@ -19,14 +19,13 @@ import Content from 'components/sidebar/components/Content';
 // Assets
 import { IoMenuOutline } from 'react-icons/io5';
 
-export default function Sidebar(props: {history: HistoryType[], activeId: string}) {
+export default function Sidebar(props: {history: HistoryType[], activeId: string ,changeHistoryPage: (id: string) => void}) {
 
 	let variantChange = '0.2s linear';
 	let shadow = useColorModeValue('14px 17px 40px 4px rgba(112, 144, 176, 0.08)', 'unset');
 	// Chakra Color Mode
 	let sidebarBg = useColorModeValue('white', 'navy.800');
 	let sidebarMargins = '0px';
-
 	// SIDEBAR
 	return (
 		<Box display={{ sm: 'none', xl: 'block' }} position='fixed' minH='100%'>
@@ -40,7 +39,7 @@ export default function Sidebar(props: {history: HistoryType[], activeId: string
 				overflowX='hidden'
 				boxShadow={shadow}>
 	
-						<Content history={props.history} activeId={props.activeId}/>
+						<Content history={props.history} activeId={props.activeId} changeHistoryPage={props.changeHistoryPage}/>
 						
 			</Box>
 		</Box>

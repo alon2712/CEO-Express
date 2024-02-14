@@ -11,7 +11,7 @@ interface AppState {
   subpage: string
   messageFromFlask: string
   historyMap: HistoryType[]
-  ideaEntries: IdeasEntry[];
+  ideaEntries: IdeaEntryType[];
 }
 
 
@@ -22,10 +22,10 @@ export default class App extends Component<{}, AppState>{
    this.state ={page:"ideation", subpage:"", messageFromFlask: null,historyMap: null,ideaEntries: null}
 }
 
-componentDidMount() {
-  this.getHistory();
-  this.getAllIdeas();
-}
+//componentDidMount() {
+//  this.getHistory();
+ // this.getAllIdeas();
+//}
 
 // add entry
 // addEntry = () => {

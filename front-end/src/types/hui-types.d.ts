@@ -2,7 +2,18 @@ export {};
 
 declare global {
 	interface HistoryType {
-		name: string;
-		id: string;
+        HistoryId: string;
+        Name: string;
+        UserName: string; 
+	}
+
+
+	interface IdeaEntryType {
+        IdeaEntryId: string;
+        Name: string;
+        Description: string;
+        DomainName: string;
+        HistoryId: string;
+        IsGenerated: number;
 	}
 }

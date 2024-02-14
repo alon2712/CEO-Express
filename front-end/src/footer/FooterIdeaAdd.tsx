@@ -14,7 +14,16 @@ import { useState, useEffect } from 'react';
 import { SearchIcon } from '@chakra-ui/icons';
 import { IoMdMoon, IoMdSunny } from 'react-icons/io';
 
-export default function FooterIdeaAdd(props: {}) {
+
+interface FooterProps {
+    updateIdeaName: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    updateIdeaDescription: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+    currentIdeaName: string;
+    currentIdeaDescription: string;
+    addIdeaEntry: () => void;
+}
+
+export default function FooterIdeaAdd(props: FooterProps) {
     const [scrolled, setScrolled] = useState(false);
 
     useEffect(() => {
@@ -117,7 +126,11 @@ export default function FooterIdeaAdd(props: {}) {
                         ms={{ base: "0px", md: "0px" }}
                         placeholder='Your idea description...'
                         mb='24px'
-                        size='lg' />
+                        size='lg'
+                        
+                        value={props.currentIdeaDescription}
+                        onChange={props.updateIdeaDescription}
+                        />
                 </Box>
                 <Box
                     w='100%'
@@ -133,10 +146,11 @@ export default function FooterIdeaAdd(props: {}) {
                         variant='auth'
                         fontSize='sm'
                         ms={{ base: "0px", md: "0px" }}
-                        type='email'
                         placeholder='Your idea name...'
                         fontWeight='500'
                         size='lg'
+                        value={props.currentIdeaName}
+                        onChange={props.updateIdeaName}
                     />
                     <Box
                         mt="auto"
@@ -145,25 +159,26 @@ export default function FooterIdeaAdd(props: {}) {
                         display='flex'
                         justifyContent='space-between'>
 
-                            <Button
-                                fontSize='sm'
-                                variant='brand'
-                                fontWeight='500'
-                                h='40px'
-                                w='40%'>
-                                Add
-                            </Button>
-                        
+                        <Button
+                            fontSize='sm'
+                            variant='brand'
+                            fontWeight='500'
+                            h='40px'
+                            w='40%'
+                            onClick={props.addIdeaEntry}>
+                            Add
+                        </Button>
 
-                            <Button
-                                fontSize='sm'
-                                variant='brand'
-                                fontWeight='500'
-                                w='58%'
-                                h='40px'>
-                                Generate More
-                            </Button>
-                        
+
+                        <Button
+                            fontSize='sm'
+                            variant='brand'
+                            fontWeight='500'
+                            w='58%'
+                            h='40px'>
+                            Generate More
+                        </Button>
+
 
                     </Box>
                 </Box>

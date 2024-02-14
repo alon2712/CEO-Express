@@ -18,16 +18,16 @@ def tester():
 This endpoint is used to add an idea entry to the database. Gets called with an api call like so:
 http://127.0.0.1:5000/addIdeaEntry?IdeaName=testingAPI&Description=description%20of%20idea&HistoryID=b49d01e1-9d78-41bc-9a49-d037c4747a25
 """
-@api.route('/addIdeaEntry', methods=['GET'])
+@api.route('/addIdeaEntry', methods=['POST'])
 def addIdeaEntry():
-    historyID = request.args.get('HistoryID')
-    ideaName = request.args.get('IdeaName')
-    description = request.args.get('Description')
-    success = databaseInfo.addIdeaEntryQuery(ideaName, description, historyID)
+    historyId = request.json.get('HistoryId')
+    ideaName = request.json.get('IdeaName')
+    description = request.json.get('Description')
+    success = databaseInfo.addIdeaEntryQuery(ideaName, description, historyId)
     response_body = {
         'message': str(success)
     }
-    return response_body['message']
+    return response_body
 
 
 
@@ -38,11 +38,9 @@ http://127.0.0.1:5000/getAllHistory
 """
 @api.route('/getAllHistory', methods=['GET'])
 def getAllHistory():
-    map = databaseInfo.getAllHistoryQuery()
+    returnList = databaseInfo.getAllHistoryQuery()
     response_body = {
-        #'message': jsonify(map)
-        'message': json.dumps(map, default=str, indent = 2)
-        
+        'message': json.dumps(returnList, default=str, indent = 2)
     }
     return response_body 
     
@@ -54,11 +52,11 @@ http://127.0.0.1:5000/getAllIdeaEntriesForHistory?HistoryID=b49d01e1-9d78-41bc-9
 @api.route('/getAllIdeaEntriesForHistory', methods=['GET'])
 def getAllIdeaEntriesForHistory():
     historyID = request.args.get('HistoryID')
-    map = databaseInfo.getAllIdeaEntriesForHistory(historyID)
+    returnList = databaseInfo.getAllIdeaEntriesForHistory(historyID)
     response_body = {
-        'message': json.dumps(map, default=str, indent = 2)
+        'message': json.dumps(returnList, default=str, indent = 2)
     }
-    return response_body['message']
+    return response_body
 
 # Just an example on how to use the api
 def saveData(info):

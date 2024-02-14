@@ -8,19 +8,12 @@ import axios from 'axios';
 import { wait } from '@testing-library/user-event/dist/utils';
 
 interface IdeaViewState {
-    ideas: RowObj[];
-    currentIdea: string;
+    ideas: IdeaEntryType[];
+    currentIdeaName: string;
+    currentIdeaDescription: string;
     history: HistoryType[];
     activePageId: string;
-    historyMap: {historyName : string, historyID: string}[];
 }
-// interface HistoryMap {
-//     [historyID: string]: string;
-//   }
-
-type RowObj = {
-    name: [string, boolean];
-};
 
 
 export default class IdeaView extends React.Component<{}, IdeaViewState> {
@@ -28,98 +21,117 @@ export default class IdeaView extends React.Component<{}, IdeaViewState> {
         super(props);
         this.state = {
             ideas: [],
-            currentIdea: '',
+            currentIdeaName: '',
+            currentIdeaDescription: '',
             history: [],
-            activePageId: "test1",
-            historyMap: []
+            activePageId: ""
         };
-        
-        
 
-    
-        this.getHistory();
-        
-        
-        // for (let i = 0; i < this.state.historyMap.length; i++) {
-        //     historyList.push({ name: this.state.historyMap[i].historyName, id: this.state.historyMap[i].historyID})
-        // }
+        this.updateIdeaDescription = this.updateIdeaDescription.bind(this);
+        this.updateIdeaName = this.updateIdeaName.bind(this);
+        this.addIdeaEntry = this.addIdeaEntry.bind(this);
+        this.reload = this.reload.bind(this);
+    }
 
-        let ideaList: RowObj[] = [];
-        for (let i = 0; i < 100; i++) {
-            ideaList.push({ name: ["Test " + i, true] })
-        }
+    componentDidMount() {
+        axios.get('/getAllHistory')
+            .then(response => {
+                const data: HistoryType[] = JSON.parse(response.data.message);
 
-        
+                if (data != undefined && data.length > 0) {
+                    axios.get('/getAllIdeaEntriesForHistory?HistoryID=' + data[0].HistoryId)
+                        .then(response => {
+                            const ideaData = JSON.parse(response.data.message);
 
-        this.updateIdea = this.updateIdea.bind(this);
-        this.addIdea = this.addIdea.bind(this);
-        this.deleteIdea = this.deleteIdea.bind(this);
+                            this.setState({ history: data, ideas: ideaData, activePageId: data[0].HistoryId });
+                        })
+                        .catch(error => {
+                            console.error('Error getting all ideas:', error);
+                        });
+                }
+                else {
+                    this.setState({ history: data });
+                }
+            })
+            .catch(error => {
+                console.error('Error getting history:', error);
+            });
     }
 
     getHistory = () => {
-        let map : {historyName : string, historyID: string}[] = [{historyName: "", historyID: ""}];
         axios.get('/getAllHistory')
-          .then(response => {
-            const data = JSON.parse(response.data.message);
-            //const historyMap: HistoryMap = data;
-            map = Object.keys(data).map(historyID => ({
-                historyName: data[historyID],
-                historyID
-              }));
-            this.setState({ historyMap: map }, () => {
-                this.processHistoryMap();
+            .then(response => {
+                const data = JSON.parse(response.data.message);
+
+                this.setState({ history: data });
+            })
+            .catch(error => {
+                console.error('Error getting history:', error);
             });
-          })
-          .catch(error => {
-            console.error('Error getting history:', error);
-          });
-      };
-    getAllIdeas = (id: string) => {
-        axios.get('/getAllIdeaEntriesForHistory?HistoryID='+id)
-        .then(response => {
-            const data = response.data;
-            console.log("DATA BELOW:")
-            console.log(data);
-        })
-        .catch(error => {
-          console.error('Error getting all ideas:', error);
-     });
     }
-      processHistoryMap = () => {
-        let historyList: HistoryType[] = [];
-        for (let i = 0; i < this.state.historyMap.length; i++) {
-            historyList.push({ name: this.state.historyMap[i].historyName, id: this.state.historyMap[i].historyID })
+
+    changeHistoryPage = (id: string) => {
+        this.setState({ ideas: [], activePageId: id })
+
+        axios.get('/getAllIdeaEntriesForHistory?HistoryID=' + id)
+            .then(response => {
+                console.log(response.data)
+                const data = JSON.parse(response.data.message);
+
+                console.log(data)
+                this.setState({ ideas: data });
+            })
+            .catch(error => {
+                console.error('Error getting all ideas:', error);
+            });
+    }
+
+    reload = () => {
+
+        axios.get('/getAllIdeaEntriesForHistory?HistoryID=' + this.state.activePageId)
+            .then(response => {
+                console.log(response.data)
+                const data = JSON.parse(response.data.message);
+
+                console.log(data)
+                this.setState({ ideas: data });
+            })
+            .catch(error => {
+                console.error('Error getting all ideas:', error);
+            });
+    }
+    updateIdeaName(e: React.ChangeEvent<HTMLInputElement>) {
+        this.setState({ currentIdeaName: e.target.value });
+    }
+
+    updateIdeaDescription(e: React.ChangeEvent<HTMLTextAreaElement>) {
+        this.setState({ currentIdeaDescription: e.target.value });
+    }
+
+    addIdeaEntry() {
+        this.setState({ currentIdeaDescription: '', currentIdeaName: '' })
+        if (this.state.currentIdeaDescription != '' && this.state.currentIdeaName != '') {
+            axios.post('/addIdeaEntry', {
+                HistoryId: this.state.activePageId,
+                IdeaName: this.state.currentIdeaDescription,
+                Description: this.state.currentIdeaName
+            })
+                .then(response => {
+                    console.log(response)
+                    this.reload();
+                })
+                .catch(error => {
+                    console.log(error);
+                });
         }
-        console.log("HISTORY LIST BELOW IN PROCESS:");
-        console.log(historyList);
-        this.setState({ history: historyList });
-    };
-    
 
-    updateIdea(e: React.ChangeEvent<HTMLInputElement>) {
-        this.setState({ currentIdea: e.target.value });
-    }
-
-    addIdea() {
-        this.setState({
-            ideas: [...this.state.ideas, {name: [this.state.currentIdea, true]}],
-            currentIdea: ''
-        });
-    }
-
-    deleteIdea(index: number) {
-        const newIdeas = [...this.state.ideas];
-        newIdeas.splice(index, 1);
-
-        this.setState({ ideas: newIdeas });
     }
 
     render() {
-
         return (
             <Box>
 
-                <Sidebar history={this.state.history} activeId={this.state.activePageId}/>
+                <Sidebar history={this.state.history} activeId={this.state.activePageId} changeHistoryPage={this.changeHistoryPage} />
                 <Box
                     float='right'
                     minHeight='100vh'
@@ -137,13 +149,13 @@ export default class IdeaView extends React.Component<{}, IdeaViewState> {
                         <Box>
                             <Header />
                         </Box>
-                        
+
                     </Portal>
                     <Portal>
                         <Box>
-                            <Footer />
+                            <Footer updateIdeaDescription={this.updateIdeaDescription} updateIdeaName={this.updateIdeaName} addIdeaEntry={this.addIdeaEntry} currentIdeaName={this.state.currentIdeaName} currentIdeaDescription={this.state.currentIdeaDescription} />
                         </Box>
-                        
+
                     </Portal>
                     <Box mt='30px' mb='160px' mx='auto' p={{ base: '20px', md: '30px' }} pe='20px' minH='100vh' pt='50px'>
                         <Box pt={{ base: '130px', md: '80px', xl: '80px' }}>
@@ -156,9 +168,4 @@ export default class IdeaView extends React.Component<{}, IdeaViewState> {
         );
     }
 }
-/*
-
-                    <IdeaList addIdea={this.addIdea} currentIdea={this.state.currentIdea} updateIdea={this.updateIdea} ideas={this.state.ideas} deleteIdea={this.deleteIdea}/>
-
-*/
 
