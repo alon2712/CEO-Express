@@ -39,7 +39,7 @@ export default function IdeaCheckTable(props: IdeaCheckTableType) {
 			),
 			cell: (info: any) => (
 				<Flex align='center'>
-					<Checkbox defaultChecked={info.getValue()[1]} colorScheme='brandScheme' me='10px' />
+					
 					<Text color={textColor} fontSize='sm' fontWeight='700'>
 						{info.getValue()}
 					</Text>
@@ -133,3 +133,5 @@ export default function IdeaCheckTable(props: IdeaCheckTableType) {
 		</Card>
 	);
 } 
+
+//<Checkbox defaultChecked={info.getValue()[1]} colorScheme='brandScheme' me='10px' />

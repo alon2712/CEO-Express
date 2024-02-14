@@ -21,6 +21,7 @@ interface FooterProps {
     currentIdeaName: string;
     currentIdeaDescription: string;
     addIdeaEntry: () => void;
+    generateMore: () => void;
 }
 
 export default function FooterIdeaAdd(props: FooterProps) {
@@ -171,11 +172,13 @@ export default function FooterIdeaAdd(props: FooterProps) {
 
 
                         <Button
+                           
                             fontSize='sm'
                             variant='brand'
                             fontWeight='500'
                             w='58%'
-                            h='40px'>
+                            h='40px'
+                            onClick={props.generateMore}>
                             Generate More
                         </Button>
 

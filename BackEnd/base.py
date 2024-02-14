@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import databaseInfo
 import json
-
+from openai import OpenAI
 api = Flask(__name__)
 CORS(api)
 
@@ -19,29 +19,36 @@ def tester():
 This endpoint is used to generate ideas and add them to the database. Gets called with an api call like so:
 http://127.0.0.1:5000/getNewIdeas?Ideas=Swimmer,Surfer&Count=2
 """
-@api.route('/getNewIdeas', methods=['GET'])
+@api.route('/getNewIdeas', methods=['POST'])
 def getNewIdeas():
     client = OpenAI(
-        api_key="INSERT KEY HERE"
+        api_key="API-KEY"
     )
 
-    ideas = request.args.get('Ideas')
-    count = request.args.get('Count')
+    ideas = request.json.get('Ideas')
+    count = request.json.get('Count')
+    historyId = request.json.get('HistoryId')
 
     pastResults = ""
     completions = []
+    exc = ""
     for i in range(int(count or 0)):
-        completion = client.chat.completions.create(
-          model="gpt-3.5-turbo",
-            messages=[{"role": "user", "content": "Imagine that you are a highly imaginative entrepreneur, renowned for your ability to innovate beyond the confines of ordinary thought. Your extraordinary talent lies not only in your capacity to conceive wholly original ideas, but also in your ability to take existing concepts and ingeniously transform them into something much more abstract and avant-garde. Curiosity, inventiveness, and a fearless disregard for the expected are virtually imprinted in your DNA. Society's norms and conventional wisdom have no hold over your entrepreneurial spirit and business strategies. Given these ideas, " + ideas + ", generate a new super creative mind-blowing but possible idea that are different, explaining how it would work behind the scenes, in less than 1 sentence in this format unnumbered, \"[TITLE - DESCRIPTION]\". This idea should be different from any of these: " + pastResults}],
-        )
-        completions.append(completion.choices[0].message.content.split(" - "))
-        pastResults = pastResults + " " + completions[i][0]
-        databaseInfo.addIdeaEntryQuery(completions[i][0], completions[i][1])
+        try:
+            completion = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+                messages=[{"role": "user", "content": "Imagine that you are a highly imaginative entrepreneur, renowned for your ability to innovate beyond the confines of ordinary thought. Your extraordinary talent lies not only in your capacity to conceive wholly original ideas, but also in your ability to take existing concepts and ingeniously transform them into something much more abstract and avant-garde. Curiosity, inventiveness, and a fearless disregard for the expected are virtually imprinted in your DNA. Society's norms and conventional wisdom have no hold over your entrepreneurial spirit and business strategies. Given these ideas, " + ideas + ", generate a new super creative mind-blowing but possible idea that are different, explaining how it would work behind the scenes, in less than 1 sentence in this format unnumbered, \"[TITLE - DESCRIPTION]\". This idea should be different from any of these: " + pastResults}],
+            )
+            completions.append(completion.choices[0].message.content.split(" - "))
+            pastResults = pastResults + " " + completions[i][0]
+            databaseInfo.addIdeaEntryQuery(completions[i][0][1:], completions[i][1][:-1], historyId)
+        except  Exception as e:
+            exc = e
+            break
+
     response_body = {
-        'message': str(True)
+        'message': exc
     }
-    return response_body['message']
+    return response_body
 
 
 """

@@ -13,6 +13,7 @@ interface IdeaViewState {
     currentIdeaDescription: string;
     history: HistoryType[];
     activePageId: string;
+    
 }
 
 
@@ -31,6 +32,7 @@ export default class IdeaView extends React.Component<{}, IdeaViewState> {
         this.updateIdeaName = this.updateIdeaName.bind(this);
         this.addIdeaEntry = this.addIdeaEntry.bind(this);
         this.reload = this.reload.bind(this);
+        this.generateMore = this.generateMore.bind(this);
     }
 
     componentDidMount() {
@@ -126,7 +128,28 @@ export default class IdeaView extends React.Component<{}, IdeaViewState> {
         }
 
     }
+    generateMore() {
 
+        var descriptionNameConcat = this.state.ideas.map(function(item) {
+            return item.Name + " described by "+item.Description;
+            }).join(",");
+
+            console.log(descriptionNameConcat)
+        axios.post('/getNewIdeas', {
+            HistoryId: this.state.activePageId,
+            Ideas: descriptionNameConcat,
+            Count: 1
+        })
+            .then(response => {
+                console.log(response)
+                this.reload();
+            })
+            .catch(error => {
+                console.log(error);
+            });
+        
+
+    }
     render() {
         return (
             <Box>
@@ -153,7 +176,7 @@ export default class IdeaView extends React.Component<{}, IdeaViewState> {
                     </Portal>
                     <Portal>
                         <Box>
-                            <Footer updateIdeaDescription={this.updateIdeaDescription} updateIdeaName={this.updateIdeaName} addIdeaEntry={this.addIdeaEntry} currentIdeaName={this.state.currentIdeaName} currentIdeaDescription={this.state.currentIdeaDescription} />
+                            <Footer generateMore={this.generateMore} updateIdeaDescription={this.updateIdeaDescription} updateIdeaName={this.updateIdeaName} addIdeaEntry={this.addIdeaEntry} currentIdeaName={this.state.currentIdeaName} currentIdeaDescription={this.state.currentIdeaDescription} />
                         </Box>
 
                     </Portal>
