@@ -6,7 +6,7 @@ import SidebarCard from 'components/sidebar/components/SidebarCard';
 import History from 'components/sidebar/components/History';
 // FUNCTIONS
 
-function SidebarContent(props: {history: HistoryType[], activeId: string,changeHistoryPage: (id: string) => void}) {
+function SidebarContent(props: {history: HistoryType[], activeId: string,changeHistoryPage: (id: string, name: string) => void}) {
 	// SIDEBAR
 	return (
 		<Flex direction='column' height='100%' pt='25px' borderRadius='30px'>

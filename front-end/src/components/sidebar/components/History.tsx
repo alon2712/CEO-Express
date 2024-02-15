@@ -4,7 +4,7 @@ import { Box, Flex, HStack, Text, useColorModeValue } from '@chakra-ui/react';
 
 
 
-export function SidebarHistory(props: {history: HistoryType[], activeId: string,changeHistoryPage: (id: string) => void}) {
+export function SidebarHistory(props: {history: HistoryType[], activeId: string,changeHistoryPage: (id: string, name: string)  => void}) {
 	//   Chakra color mode
 	let activeColor = useColorModeValue('gray.700', 'white');
 	let inactiveColor = useColorModeValue('secondaryGray.600', 'secondaryGray.600');
@@ -34,7 +34,7 @@ export function SidebarHistory(props: {history: HistoryType[], activeId: string,
 											color={activeRoute(historyEntry.HistoryId) ? activeColor : inactiveColor}
 											fontWeight={activeRoute(historyEntry.HistoryId) ? 'bold' : 'normal'}>
 											
-											<button onClick={() => {props.changeHistoryPage(historyEntry.HistoryId)}}>
+											<button onClick={() => {props.changeHistoryPage(historyEntry.HistoryId, historyEntry.Name)}}>
   												{historyEntry.Name} 
 											</button>
 										</Text>

@@ -19,7 +19,7 @@ import Content from 'components/sidebar/components/Content';
 // Assets
 import { IoMenuOutline } from 'react-icons/io5';
 
-export default function Sidebar(props: {history: HistoryType[], activeId: string ,changeHistoryPage: (id: string) => void}) {
+export default function Sidebar(props: {history: HistoryType[], activeId: string ,changeHistoryPage: (id: string, name: string) => void}) {
 
 	let variantChange = '0.2s linear';
 	let shadow = useColorModeValue('14px 17px 40px 4px rgba(112, 144, 176, 0.08)', 'unset');

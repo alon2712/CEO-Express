@@ -14,6 +14,7 @@ interface IdeaViewState {
     currentIdeaDescription: string;
     history: HistoryType[];
     activePageId: string;
+    activePageName: string;
     ideasLoading: boolean;
     generateLoading: boolean;
 
@@ -29,6 +30,7 @@ export default class IdeaView extends React.Component<{}, IdeaViewState> {
             currentIdeaDescription: '',
             history: [],
             activePageId: "",
+            activePageName: "",
             ideasLoading: true,
             generateLoading: false
         };
@@ -50,7 +52,7 @@ export default class IdeaView extends React.Component<{}, IdeaViewState> {
                         .then(response => {
                             const ideaData = JSON.parse(response.data.message);
 
-                            this.setState({ history: data, ideas: ideaData, activePageId: data[0].HistoryId, ideasLoading: false });
+                            this.setState({ history: data, ideas: ideaData, activePageId: data[0].HistoryId, activePageName:data[0].Name, ideasLoading: false });
                         })
                         .catch(error => {
                             console.error('Error getting all ideas:', error);
@@ -77,8 +79,8 @@ export default class IdeaView extends React.Component<{}, IdeaViewState> {
             });
     }
 
-    changeHistoryPage = (id: string) => {
-        this.setState({ ideas: [], activePageId: id, ideasLoading: true })
+    changeHistoryPage = (id: string, name: string) => {
+        this.setState({ ideas: [], activePageId: id, activePageName: name, ideasLoading: true })
 
         axios.get('/getAllIdeaEntriesForHistory?HistoryID=' + id)
             .then(response => {
@@ -224,7 +226,7 @@ export default class IdeaView extends React.Component<{}, IdeaViewState> {
                         transitionTimingFunction='linear, linear, ease'>
                         <Portal>
                             <Box>
-                                <Header />
+                                <Header currentPage={this.state.activePageName}/>
                             </Box>
 
                         </Portal>
