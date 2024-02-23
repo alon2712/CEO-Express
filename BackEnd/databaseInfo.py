@@ -54,6 +54,19 @@ def addIdeaEntryQuery(ideaName, description, historyId):
     
     return True
 
+def createNewHistory(HistoryName, userName):
+    conn = get_conn()
+    cursor = conn.cursor()
+    domain = str(uuid.uuid4())
+    try:
+        cursor.execute("INSERT INTO HISTORY (Name, UserName, DomainName) VALUES (?, ?, ?)", (HistoryName, userName, str(domain)[:20]))
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        print("An error occurred:", e)
+        return e 
+    return True
+
 def generate_custom_guid():
     generated_uuid = uuid.uuid4()
     return generated_uuid

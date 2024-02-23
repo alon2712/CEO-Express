@@ -23,7 +23,7 @@ http://127.0.0.1:5000/getNewIdeas?Ideas=Swimmer,Surfer&Count=2
 @api.route('/getNewIdeas', methods=['POST'])
 def getNewIdeas():
     client = OpenAI(
-        api_key="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"
+        api_key="API-KEY"
     )
 
     ideas = request.json.get('Ideas')
@@ -33,10 +33,7 @@ def getNewIdeas():
     exc = ""
     try:
         t0 = time.time()
-       
-
-        
-        
+           
         completion = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[{"role": "user", "content": "Imagine that you are a highly imaginative entrepreneur, renowned for your ability to innovate beyond the confines of ordinary thought but also keeping things obtainable and senseble. Your extraordinary talent lies not only in your capacity to conceive wholly original ideas, but also in your ability to take existing concepts and ingeniously transform them into something much more abstract and avant-garde, but also simple and createble by the average human. Curiosity, inventiveness, and a fearless disregard for the expected are virtually imprinted in your DNA. Society's norms and conventional wisdom have no hold over your entrepreneurial spirit and business strategies. Given these ideas, " + ideas + ", generate a new screative possible idea that is different, explaining how it would work behind the scenes, in less than 1 sentence (20 words). Provide only a description (NO TITLE)"}],
@@ -75,6 +72,16 @@ def addIdeaEntry():
     success = databaseInfo.addIdeaEntryQuery(description, ideaName, historyId)
     response_body = {
         'message': str(success)
+    }
+    return response_body
+
+@api.route('/createNewHistory', methods=['POST'])
+def createNewHistory():
+    historyName = request.json.get('HistoryName')
+    username = request.json.get('userName')
+    success = databaseInfo.createNewHistory(historyName, username)
+    response_body = {
+        'message': "success of Create new history:" + str(success)
     }
     return response_body
 
