@@ -17,7 +17,8 @@ interface IdeaViewState {
     activePageName: string;
     ideasLoading: boolean;
     generateLoading: boolean;
-
+    currentNewHistory: string;
+    currentUserName: string;
 }
 
 
@@ -32,7 +33,9 @@ export default class IdeaView extends React.Component<{}, IdeaViewState> {
             activePageId: "",
             activePageName: "",
             ideasLoading: true,
-            generateLoading: false
+            generateLoading: false,
+            currentNewHistory: "",
+            currentUserName: ""
         };
 
         this.updateIdeaDescription = this.updateIdeaDescription.bind(this);
@@ -40,6 +43,9 @@ export default class IdeaView extends React.Component<{}, IdeaViewState> {
         this.addIdeaEntry = this.addIdeaEntry.bind(this);
         this.reload = this.reload.bind(this);
         this.generateMore = this.generateMore.bind(this);
+        this.updateHistoryName = this.updateHistoryName.bind(this);
+        this.updateNewUsername = this.updateNewUsername.bind(this);
+        this.createNewHistory = this.createNewHistory.bind(this); 
     }
 
     componentDidMount() {
@@ -137,6 +143,33 @@ export default class IdeaView extends React.Component<{}, IdeaViewState> {
         }
 
     }
+
+    updateHistoryName(e: React.ChangeEvent<HTMLInputElement>) {
+        console.log("etarget value:" + typeof e.target.value);
+        this.setState({ currentNewHistory: e.target.value });
+    }
+
+    updateNewUsername(e: React.ChangeEvent<HTMLInputElement>) {
+        console.log(e.target.value);
+        this.setState({ currentUserName: e.target.value });
+    }
+
+    createNewHistory() {
+        this.setState({ currentNewHistory: '', currentUserName: '' });
+        axios.post('/createNewHistory', {
+            HistoryName: this.state.currentNewHistory,
+            userName: this.state.currentUserName
+        })
+            .then(response => {
+                console.log(response)
+                this.getHistory();
+            })
+            .catch(error => {
+                console.log(error);
+            });
+    }
+
+
     generateMore() {
 
         if (!this.state.generateLoading) {
@@ -210,7 +243,7 @@ export default class IdeaView extends React.Component<{}, IdeaViewState> {
 
                 <Box>
 
-                    <Sidebar history={this.state.history} activeId={this.state.activePageId} changeHistoryPage={this.changeHistoryPage} />
+                    <Sidebar history={this.state.history} activeId={this.state.activePageId} changeHistoryPage={this.changeHistoryPage} updateHistoryName={this.updateHistoryName} updateNewUsername={this.updateNewUsername} createNewHistory={this.createNewHistory} currentNewHistory={this.state.currentNewHistory} currentUserName={this.state.currentUserName}/>
                     <Box
                         float='right'
                         minHeight='100vh'

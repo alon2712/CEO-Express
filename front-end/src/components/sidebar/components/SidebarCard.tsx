@@ -5,6 +5,7 @@ export default function SidebarDocs() {
 
 	return (
 		<Flex
+		
 			justify='center'
 			direction='column'
 			align='center'
@@ -12,8 +13,6 @@ export default function SidebarDocs() {
 			borderRadius='30px'
 			me={{ base: '20px' }}
 			position='relative'>
-
-
 		</Flex>
 	);
 }
