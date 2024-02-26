@@ -1,0 +1,153 @@
+import json
+import random
+import time
+import undetected_chromedriver as uc
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from openai import OpenAI
+
+
+def search_by_type(driver, search_query):
+    i = driver.find_elements(By.TAG_NAME, "textarea")[0]
+    time.sleep(random.random() * 0.2 + 0.1)
+    for a in search_query:
+        i.send_keys(a)
+        time.sleep(random.random() * 0.1 + 0.05)
+    i.send_keys(Keys.ENTER)
+
+
+def get_all_text(driver):
+    time.sleep(random.random() * 0.2 + 0.1)
+    driver.execute_script("document.body.style.zoom='25%'")
+    time.sleep(random.random() * 0.4 + 0.1)
+    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+    time.sleep(random.random() * 0.2 + 0.3)
+    return driver.find_element(By.TAG_NAME, "body").text
+
+def get_summary(client, text_input):
+    try:
+        thread = client.beta.threads.create()
+
+        message = client.beta.threads.messages.create(
+            thread_id=thread.id,
+            role="user",
+            content=text_input
+        )
+
+        run = client.beta.threads.runs.create(
+            thread_id=thread.id,
+            assistant_id=summarizer_assistant.id
+        )
+
+        while run.status != "completed":
+            keep_retrieving_run = client.beta.threads.runs.retrieve(
+                thread_id=thread.id,
+                run_id=run.id
+            )
+            print(f"Run status: {keep_retrieving_run.status}")
+
+            if keep_retrieving_run.status == "completed":
+                print("\n")
+                break
+
+        all_messages = client.beta.threads.messages.list(
+            thread_id=thread.id
+        )
+
+        return all_messages.data[0].content[0].text.value
+    except:
+        return ""
+
+def get_results(client, summary):
+    try:
+
+        thread = client.beta.threads.create()
+
+        message = client.beta.threads.messages.create(
+            thread_id=thread.id,
+            role= "user",
+            content=summary
+        )
+
+        run = client.beta.threads.runs.create(
+            thread_id=thread.id,
+            assistant_id=new_assistant.id
+        )
+        output = ""
+        while run.status != "completed":
+            keep_retrieving_run = client.beta.threads.runs.retrieve(
+                thread_id=thread.id,
+                run_id=run.id
+            )
+            print(f"Run status: {keep_retrieving_run.status}")
+
+            if keep_retrieving_run.status == "completed":
+                print("\n")
+                break
+            elif keep_retrieving_run.status == 'requires_action':
+                print('requires action')
+                print("\n")
+
+                output = keep_retrieving_run.required_action.submit_tool_outputs.tool_calls[0].function.arguments
+                break
+
+        return json.loads(output)["Ideas"]
+    except:
+        return []
+
+
+if __name__ == '__main__':
+    time.sleep(random.random() * 0.2 + 0.3)
+    driver = uc.Chrome()
+    # headless=True, use_subprocess=False
+
+    client = OpenAI(api_key="jacobs-key")
+
+    summarizer_assistant = client.beta.assistants.retrieve(
+        assistant_id="asst_H8XwiMUr7FAMvHfLFmVP6oXy"
+    )
+
+    new_assistant = client.beta.assistants.retrieve(
+        assistant_id="asst_Km7vpg8vUvWmQmfPMBMVN58K"
+    )
+
+    next_outputs = [{"name": "Business Ideas From Home", "description": "Business Ideas From Home", "searchquery":"Business Ideas From Home"}]
+    while len(next_outputs) > 0:
+
+        print("\n")
+        print("\n")
+        print("\n")
+        print("\n")
+        print("NEW CYCLE SEARCHING: " + next_outputs[0]["searchquery"])
+        print("\n")
+        print("\n")
+        print("\n")
+        print("\n")
+        print("\n")
+        time.sleep(3)
+        driver.get('https://www.google.com/search')
+
+        search_by_type(driver, next_outputs[0]["searchquery"])
+
+
+        text_input = get_all_text(driver)
+
+        summary = get_summary(client, text_input)
+
+        if summary == "":
+            continue
+
+        print(summary)
+        results = get_results(client, summary)
+
+        if len(results) == []:
+            continue
+
+        next_outputs.extend(results)
+
+        print("\n")
+        print(next_outputs)
+
+        next_outputs = next_outputs[1:]
+
+
