@@ -97,13 +97,24 @@ def get_results(client, summary):
     except:
         return []
 
+def count_search_results(query):
+    url = "https://www.google.com/search?q=" + query
+    driver.get(url)
+    soup = BeautifulSoup(driver.page_source, 'html.parser')
+    result_stats = soup.find(id="result-stats").get_text()
+    result_count = int(''.join(filter(str.isdigit, result_stats)))
+    return result_count
+
+def normalize(count, max_count):
+    return 1 - (count / max_count)
+
 
 if __name__ == '__main__':
     time.sleep(random.random() * 0.2 + 0.3)
     driver = uc.Chrome()
     # headless=True, use_subprocess=False
 
-    client = OpenAI(api_key="")
+    client = OpenAI(api_key="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")
 
     summarizer_assistant = client.beta.assistants.retrieve(
         assistant_id="asst_H8XwiMUr7FAMvHfLFmVP6oXy"
@@ -132,11 +143,12 @@ if __name__ == '__main__':
         search_by_type(driver, next_outputs[0]["searchquery"])
 
         links = []
+        business_ideas = []
         query = next_outputs[0]["searchquery"]
         links = [] 
         n_pages = 2
         for page in range(1, n_pages):
-            url = "http://www.google.com/search?q=" + query + "&start=" +      str((page - 1) * 10)
+            url = "http://www.google.com/search?q=" + query + "&start=" +      str((page - 1) * 10) + "&num=5"
             driver.get(url)
             soup = BeautifulSoup(driver.page_source, 'html.parser')
             search = soup.find_all('div', class_="yuRUbf")
@@ -149,16 +161,14 @@ if __name__ == '__main__':
         text_input = ""
         for link in links:
             driver.get(link)
+            driver.implicitly_wait(20)
             time.sleep(random.random() * 0.2 + 0.1)
             text_input += get_all_text(driver)
             time.sleep(random.random() * 0.2 + 0.1)
 
-        #text_input = get_all_text(driver)
-
             summary = get_summary(client, text_input)
 
             if summary == "":
-                print('checking')
                 continue
 
             print(summary)
@@ -168,8 +178,33 @@ if __name__ == '__main__':
                 continue
 
             next_outputs.extend(results)
+            print(next_outputs)
 
             print("\n")
             print(next_outputs)
 
             next_outputs = next_outputs[1:]
+
+            for idea in results:
+                business_ideas.append({
+                    "name": idea["name"],
+                    "description": idea["description"],
+                    "searchquery": idea["searchquery"]
+                })
+
+        if business_ideas:
+            # Niche score for each business idea
+            for idea in business_ideas:
+                query = idea["searchquery"]
+                result_count = count_search_results(query)
+                max_count = count_search_results("business ideas")  # You can use a generic query as a reference
+                niche_score = normalize(result_count, max_count)
+                idea["niche_score"] = niche_score
+            
+
+            sorted_business_ideas = sorted(business_ideas, key=lambda x: x["niche_score"], reverse=True)
+            print("\n\n\n")
+            print("BUSINESS IDEAS RANKED BY NICHE SCORES:")
+
+            for idea in sorted_business_ideas:
+                print(f"Idea: {idea['searchquery']}, Niche Score: {idea['niche_score']}")
