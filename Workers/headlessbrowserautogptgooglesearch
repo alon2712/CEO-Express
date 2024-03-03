@@ -103,7 +103,7 @@ if __name__ == '__main__':
     driver = uc.Chrome()
     # headless=True, use_subprocess=False
 
-    client = OpenAI(api_key="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")
+    client = OpenAI(api_key="")
 
     summarizer_assistant = client.beta.assistants.retrieve(
         assistant_id="asst_H8XwiMUr7FAMvHfLFmVP6oXy"
