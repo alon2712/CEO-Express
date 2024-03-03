@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+import ExploreView from '../components/ExploreView';
 
 
 export default class Explore extends Component<{}, {}>{
@@ -8,6 +9,6 @@ export default class Explore extends Component<{}, {}>{
    this.state ={}
 }
 render = (): JSX.Element => {
-  return (<h5>Hello World Explore</h5>)
+  return (<div><ExploreView/></div>)
 };
 }
