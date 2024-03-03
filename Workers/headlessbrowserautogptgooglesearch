@@ -5,6 +5,8 @@ import undetected_chromedriver as uc
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from openai import OpenAI
+from bs4 import BeautifulSoup
+import sys
 
 
 def search_by_type(driver, search_query):
@@ -101,7 +103,7 @@ if __name__ == '__main__':
     driver = uc.Chrome()
     # headless=True, use_subprocess=False
 
-    client = OpenAI(api_key="jacobs-key")
+    client = OpenAI(api_key="")
 
     summarizer_assistant = client.beta.assistants.retrieve(
         assistant_id="asst_H8XwiMUr7FAMvHfLFmVP6oXy"
@@ -129,25 +131,45 @@ if __name__ == '__main__':
 
         search_by_type(driver, next_outputs[0]["searchquery"])
 
+        links = []
+        query = next_outputs[0]["searchquery"]
+        links = [] 
+        n_pages = 2
+        for page in range(1, n_pages):
+            url = "http://www.google.com/search?q=" + query + "&start=" +      str((page - 1) * 10)
+            driver.get(url)
+            soup = BeautifulSoup(driver.page_source, 'html.parser')
+            search = soup.find_all('div', class_="yuRUbf")
+            for h in search:
+                links.append(h.a.get('href'))
+        search = soup.find_all('div', class_="yuRUbf")
+        for h in search:
+            links.append(h.a.get('href'))
 
-        text_input = get_all_text(driver)
+        text_input = ""
+        for link in links:
+            driver.get(link)
+            time.sleep(random.random() * 0.2 + 0.1)
+            text_input += get_all_text(driver)
+            time.sleep(random.random() * 0.2 + 0.1)
 
-        summary = get_summary(client, text_input)
+        #text_input = get_all_text(driver)
 
-        if summary == "":
-            continue
+            summary = get_summary(client, text_input)
 
-        print(summary)
-        results = get_results(client, summary)
+            if summary == "":
+                print('checking')
+                continue
 
-        if len(results) == []:
-            continue
+            print(summary)
+            results = get_results(client, summary)
 
-        next_outputs.extend(results)
+            if len(results) == []:
+                continue
 
-        print("\n")
-        print(next_outputs)
+            next_outputs.extend(results)
 
-        next_outputs = next_outputs[1:]
+            print("\n")
+            print(next_outputs)
 
-
+            next_outputs = next_outputs[1:]
