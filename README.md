@@ -4,6 +4,7 @@ Current Operational Use Cases:
 1. Brainstorming - The user can input their own ideas of startups and all of this information will be displayed on the screen and saved in the history for later uses.
 2. Clicking Check Boxes - The user can choose which ideas they want to generate more ideas on and will be able to see the display of the new ideas that were generated.
 3. Add Button - Clicking on the add button will generate new ideas based on the current existing ones
+4. Viewing step-by-step page: User will receive a comprehensive step-by-step page of what the startup's step to be created would be with helpful links.
 
 **Instructions**
 
