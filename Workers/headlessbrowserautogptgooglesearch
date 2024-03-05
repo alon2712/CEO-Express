@@ -1,12 +1,19 @@
 import json
+import math
 import random
+import re
 import time
+import requests
 import undetected_chromedriver as uc
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from openai import OpenAI
 from bs4 import BeautifulSoup
 import sys
+from collections import Counter
+from textblob import TextBlob
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 
 
 def search_by_type(driver, search_query):
@@ -107,6 +114,63 @@ def count_search_results(query):
 
 def normalize(count, max_count):
     return 1 - (count / max_count)
+# def count_search_results(query):
+#     url = "https://www.google.com/search?q=" + query
+#     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'}
+#     response = requests.get(url, headers=headers)
+#     if response.status_code == 200:
+#         content = response.text
+#         result_stats = re.findall(r'About ([0-9,]+) results', content)
+#         if result_stats:
+#             result_count = int(''.join(result_stats[0].split(',')))
+#             return result_count
+#     return 0
+
+# Function to calculate TF-IDF similarity between two texts
+def calculate_similarity(text1, text2):
+    vectorizer = TfidfVectorizer()
+    tfidf_matrix = vectorizer.fit_transform([text1, text2])
+    similarity = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:2])[0][0]
+    return similarity
+
+# Function to calculate niche score using advanced methods
+def advanced_niche_score(idea_name, idea_description):
+    generic_query = "business ideas"
+    generic_result_count = count_search_results(generic_query)
+    generic_business_ideas_content = """
+        Business ideas are concepts or strategies that can be implemented to generate profit or achieve other objectives. There are various types of business ideas, including traditional brick-and-mortar businesses, online ventures, and innovative startups. Some common categories of business ideas include:
+        1. E-commerce platforms: Creating an online store to sell products or services.
+        2. Freelancing services: Offering specialized skills or services on a freelance basis.
+        3. Subscription-based services: Providing subscription-based access to content or resources.
+        4. Digital marketing agencies: Helping businesses improve their online presence and reach.
+        5. Social media consulting: Advising individuals or businesses on social media strategies.
+        6. Health and wellness products: Developing and selling products related to health and wellness.
+        7. Educational services: Offering tutoring, coaching, or online courses.
+        8. Sustainable and eco-friendly businesses: Promoting environmentally friendly products or practices.
+        These are just a few examples of business ideas, and the possibilities are endless. Successful business ideas often involve identifying a market need or solving a problem in a unique or innovative way.
+        """
+    
+    # Calculate similarity between idea description and generic business ideas content
+   # print("IDEA DESCRIPTION: ", idea_description)
+    similarity_score = calculate_similarity(idea_description, generic_business_ideas_content)
+    #print("SIMILARITY SCORE = ", similarity_score)
+    
+    # Calculate sentiment score of idea description
+    sentiment_score = TextBlob(idea_description).sentiment.polarity
+    #print("SENTIMENT SCORE = ", sentiment_score)
+    
+    # Additional advanced techniques can be incorporated here
+    
+   # print("GENERIC RESULT COUNT = ", generic_result_count)
+    # Combine scores using a weighted average or any other method
+    niche_score = (similarity_score * 0.6) + (sentiment_score * 0.4)
+    
+    # Normalize niche score
+    normalized_niche_score = 1 - (niche_score / generic_result_count)
+    
+    return normalized_niche_score
+    # return -math.log(niche_score)
+    
 
 
 if __name__ == '__main__':
@@ -114,7 +178,7 @@ if __name__ == '__main__':
     driver = uc.Chrome()
     # headless=True, use_subprocess=False
 
-    client = OpenAI(api_key="")
+    client = OpenAI(api_key="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")
 
     summarizer_assistant = client.beta.assistants.retrieve(
         assistant_id="asst_H8XwiMUr7FAMvHfLFmVP6oXy"
@@ -198,7 +262,8 @@ if __name__ == '__main__':
                 query = idea["searchquery"]
                 result_count = count_search_results(query)
                 max_count = count_search_results("business ideas")  # You can use a generic query as a reference
-                niche_score = normalize(result_count, max_count)
+                #niche_score = normalize(result_count, max_count)
+                niche_score = advanced_niche_score(idea["name"], idea["description"])
                 idea["niche_score"] = niche_score
             
 
