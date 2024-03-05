@@ -25,7 +25,7 @@ FLASK_ENV=development
 
 Testing the Backend using our tests
 1.  Open terminal
-2.  cd backend
+2.  cd BackEnd
 3.  pip install pyodbc
 4.  sudo apt install unixodbc
 5.  pip install fastapi
@@ -34,8 +34,8 @@ Testing the Backend using our tests
 8.  run ('pytest')
 
 Testing the website:
-1. npm install
-2. cd front-end
+1. cd front-end
+2. npm install
 3. npm run start
 
 We aim to revolutionize entrepreneurship by introducing a cutting-edge ideation helper powered by AI technology that suggests new ideas based on pre-existing user-inputted brainstorming lists.
