@@ -1,4 +1,4 @@
-import { Flex, Box, Table, Checkbox, Tbody, Td, Text, Th, Thead, Tr, useColorModeValue } from '@chakra-ui/react';
+import { Flex, Box, Table, Checkbox, Tbody, Td, Text, Th, Thead, Tr, useColorModeValue, CloseButton, Button } from '@chakra-ui/react';
 import * as React from 'react';
 
 import {
@@ -12,11 +12,15 @@ import {
 
 // Custom components
 import Card from 'components/card/Card';
+import { ArrowForwardIcon, SunIcon } from '@chakra-ui/icons';
 
 
 
 interface IdeaCheckTableType{
-	tableData: IdeaEntryType[]
+	tableData: IdeaEntryType[],
+	deleteIdeaEntry: (IdeaEntryId: string) => void
+	updateCheckTable: (IdeaEntryId: string) => void
+	checkboxDict: { [id: string] : boolean }
 }
 
 
@@ -32,15 +36,22 @@ export default function IdeaCheckTable(props: IdeaCheckTableType) {
 		columnHelper.accessor('Name', {
 			id: 'Name',
 			header: () => (
-				<Text color={textColor} fontWeight='700' fontSize='18px' mb="4px" lineHeight='100%'>
-					IDEAS
+				<Text color={textColor} fontWeight='700'  fontSize='18px' mb="4px" lineHeight='100%'>
+					NAME
 				</Text>
 
 			),
 			cell: (info: any) => (
 				<Flex align='center'>
 					
+
+					{info.row.original.IdeaEntryId != "" && <Checkbox defaultChecked={props.checkboxDict[info.row.original.IdeaEntryId]} 
+					onChange={()=>{props.updateCheckTable(info.row.original.IdeaEntryId)}}
+					colorScheme='brandScheme' 
+					me='10px' />}
+
 					<Text color={textColor} fontSize='sm' fontWeight='700'>
+					<SunIcon color={textColor}/>
 						{info.getValue()}
 					</Text>
 				</Flex>
@@ -56,9 +67,32 @@ export default function IdeaCheckTable(props: IdeaCheckTableType) {
 
 			),
 			cell: (info: any) => (
-				<Text color={textColor} fontSize='sm' fontWeight='700'>
+				
+				
+					info.row.original.IdeaEntryId == "" ? 
+					<Flex>
+<Text color={textColor} fontSize='sm' fontWeight='700' w='100%'>
+{info.getValue()}
+</Text>
+</Flex>
+:<Flex>
+				<Text color={textColor} fontSize='sm' fontWeight='700' w='100%'>
 					{info.getValue()}
 				</Text>
+				
+
+			  <Button ml="20px" ><ArrowForwardIcon /></Button>
+
+			  {info.row.original.IdeaEntryId != "" &&
+					<CloseButton mt="5px" ml='20px' onClick={() => {
+						props.deleteIdeaEntry(info.row.original.IdeaEntryId)
+						console.log(info, info.row.original.IdeaEntryId)
+				}}  
+				/>
+					}
+			</Flex>
+		
+				
 			)
 		})
 	];
@@ -111,7 +145,7 @@ export default function IdeaCheckTable(props: IdeaCheckTableType) {
 					<Tbody>
 						{table.getRowModel().rows.map((row) => {
 							return (
-								<Tr  w='100%'key={row.id}>
+								<Tr  w='100%' key={row.id}>
 									
 									{row.getVisibleCells().map((cell, index) => {
 										return (

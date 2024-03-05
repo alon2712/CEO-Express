@@ -4,13 +4,13 @@ import { Box, Flex, HStack, Text, useColorModeValue } from '@chakra-ui/react';
 
 
 
-export function SidebarHistory(props: {history: HistoryType[], activeId: string,changeHistoryPage: (id: string, name: string)  => void}) {
+export function SidebarHistory(props: {history: HistoryType[], activePage: HistoryType,changeHistoryPage: (page: HistoryType) => void}) {
 	//   Chakra color mode
 	let activeColor = useColorModeValue('gray.700', 'white');
 	let inactiveColor = useColorModeValue('secondaryGray.600', 'secondaryGray.600');
 
 	const activeRoute = (historyId: string) => {
-		return historyId.toLowerCase() === props.activeId.toLowerCase();
+		return historyId.toLowerCase() === props.activePage.HistoryId.toLowerCase();
 	};
 
 	const createLinks = (
@@ -34,7 +34,7 @@ export function SidebarHistory(props: {history: HistoryType[], activeId: string,
 											color={activeRoute(historyEntry.HistoryId) ? activeColor : inactiveColor}
 											fontWeight={activeRoute(historyEntry.HistoryId) ? 'bold' : 'normal'}>
 											
-											<button onClick={() => {props.changeHistoryPage(historyEntry.HistoryId, historyEntry.Name)}}>
+											<button onClick={() => {props.changeHistoryPage(historyEntry)}}>
   												{historyEntry.Name} 
 											</button>
 										</Text>

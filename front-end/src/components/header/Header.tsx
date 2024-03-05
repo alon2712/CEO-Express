@@ -6,7 +6,7 @@ import { Box, Button, Icon, Breadcrumb, BreadcrumbItem, BreadcrumbLink, Flex, Li
 import { useState, useEffect } from 'react';
 import { IoMdMoon, IoMdSunny } from 'react-icons/io';
 
-export default function Header(props: {currentPage: string}) {
+export default function Header(props: {currentPage: HistoryType}) {
 	const [scrolled, setScrolled] = useState(false);
 
 	useEffect(() => {
@@ -85,13 +85,13 @@ export default function Header(props: {currentPage: string}) {
 					<Breadcrumb>
 						<BreadcrumbItem color={secondaryText} fontSize='sm' mb='5px'>
 							<BreadcrumbLink href='#' color={secondaryText}>
-								Pages
+								BrainLists
 							</BreadcrumbLink>
 						</BreadcrumbItem>
 
 						<BreadcrumbItem color={secondaryText} fontSize='sm'>
 							<BreadcrumbLink href='#' color={secondaryText}>
-								 {props.currentPage}
+								 {props.currentPage.Name} 
 							</BreadcrumbLink>
 						</BreadcrumbItem>
 					</Breadcrumb>
@@ -112,7 +112,7 @@ export default function Header(props: {currentPage: string}) {
 						_focus={{
 							boxShadow: 'none'
 						}}>
-						{props.currentPage}
+						{props.currentPage.Name} by {props.currentPage.UserName} 
 					</Link>
 				</Box>
 				<Box ms='auto' w='max-content'>

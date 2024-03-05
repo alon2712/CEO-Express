@@ -75,6 +75,15 @@ def addIdeaEntry():
     }
     return response_body
 
+@api.route('/deleteIdeaEntry', methods=['POST'])
+def deleteIdeaEntry():
+    ideaEntryId = request.json.get('IdeaEntryId')
+    success = databaseInfo.deleteIdeaEntryQuery(ideaEntryId)
+    response_body = {
+        'message': str(success)
+    }
+    return response_body
+
 @api.route('/createNewHistory', methods=['POST'])
 def createNewHistory():
     historyName = request.json.get('HistoryName')
