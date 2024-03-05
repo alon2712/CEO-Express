@@ -9,12 +9,16 @@ Current Operational Use Cases:
 
 Connecting Flask to ReactJs
 Run these commands in your terminal 
-1. For mac/unix users: python3 -m venv env and For windows users: py -m venv env
-2. For mac/unix users: source env/bin/activate and For windows users: .\env\Scripts\activate
-3. pip install flask
-4. pip install python-dotenv
-5. touch .flaskenv
-6. FLASK_APP=base.py
+1. Run command apt install python3.10-venv
+2. sudo apt install python3-pip
+3. sudo apt install npm
+4. pip install flask_cors
+5. For mac/unix users: python3 -m venv env and For windows users: py -m venv env
+6. For mac/unix users: source env/bin/activate and For windows users: .\env\Scripts\activate
+7. pip install flask
+8. pip install python-dotenv
+9. touch .flaskenv
+10. FLASK_APP=base.py
 FLASK_ENV=development
 
 
@@ -22,9 +26,12 @@ FLASK_ENV=development
 Testing the Backend using our tests
 1.  Open terminal
 2.  cd backend
-3.  check if pytest is installed ('pytest --version')
-4.  If pytest is not installed, run ('pip install -U pytest')
-5.  run ('pytest')
+3.  pip install pyodbc
+4.  sudo apt install unixodbc
+5.  pip install fastapi
+6.  check if pytest is installed ('pytest --version')
+7.  If pytest is not installed, run ('pip install -U pytest')
+8.  run ('pytest')
 
 Testing the website:
 1. npm install
