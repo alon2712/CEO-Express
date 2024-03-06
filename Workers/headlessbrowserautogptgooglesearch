@@ -14,7 +14,14 @@ from collections import Counter
 from textblob import TextBlob
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+import nltk
+from nltk.corpus import stopwords
+import string
+import spacy
 
+nltk.download('punkt')
+nltk.download("stopwords")
+nlp = spacy.load("en_core_web_sm")
 
 def search_by_type(driver, search_query):
     i = driver.find_elements(By.TAG_NAME, "textarea")[0]
@@ -32,6 +39,7 @@ def get_all_text(driver):
     driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
     time.sleep(random.random() * 0.2 + 0.3)
     return driver.find_element(By.TAG_NAME, "body").text
+
 
 def get_summary(client, text_input):
     try:
@@ -66,6 +74,7 @@ def get_summary(client, text_input):
         return all_messages.data[0].content[0].text.value
     except:
         return ""
+
 
 def get_results(client, summary):
     try:
@@ -104,6 +113,7 @@ def get_results(client, summary):
     except:
         return []
 
+
 def count_search_results(query):
     url = "https://www.google.com/search?q=" + query
     driver.get(url)
@@ -112,31 +122,35 @@ def count_search_results(query):
     result_count = int(''.join(filter(str.isdigit, result_stats)))
     return result_count
 
-def normalize(count, max_count):
-    return 1 - (count / max_count)
-# def count_search_results(query):
-#     url = "https://www.google.com/search?q=" + query
-#     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'}
-#     response = requests.get(url, headers=headers)
-#     if response.status_code == 200:
-#         content = response.text
-#         result_stats = re.findall(r'About ([0-9,]+) results', content)
-#         if result_stats:
-#             result_count = int(''.join(result_stats[0].split(',')))
-#             return result_count
-#     return 0
 
-# Function to calculate TF-IDF similarity between two texts
 def calculate_similarity(text1, text2):
     vectorizer = TfidfVectorizer()
-    tfidf_matrix = vectorizer.fit_transform([text1, text2])
+    stopset = set(stopwords.words('english'))
+    tokens_text1 = nltk.word_tokenize(text1)
+    text1_clean = " ".join(filter(lambda word: word not in stopset, tokens_text1))
+    text1_clean = text1_clean.translate(str.maketrans('', '', string.punctuation))
+    nlp_text1 = nlp(text1_clean)
+    lemmatized_tokens_text1 = [token.lemma_ for token in nlp_text1]
+    lemmatized_text1 = ' '.join(lemmatized_tokens_text1)
+
+    stopset = set(stopwords.words('english'))
+    tokens_text2 = nltk.word_tokenize(text2)
+    text2_clean = " ".join(filter(lambda word: word not in stopset, tokens_text2))
+    text2_clean = text2_clean.translate(str.maketrans('', '', string.punctuation))
+    nlp_text2 = nlp(text1_clean)
+    lemmatized_tokens_text2 = [token.lemma_ for token in nlp_text2]
+    lemmatized_text2 = ' '.join(lemmatized_tokens_text2)
+    tfidf_matrix = vectorizer.fit_transform([lemmatized_text1, lemmatized_text2])
+
     similarity = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:2])[0][0]
     return similarity
 
-# Function to calculate niche score using advanced methods
-def advanced_niche_score(idea_name, idea_description):
-    generic_query = "business ideas"
-    generic_result_count = count_search_results(generic_query)
+
+def get_sentiment_score(idea_description):
+    return TextBlob(idea_description).sentiment.polarity
+
+
+def advanced_niche_score(idea_description):
     generic_business_ideas_content = """
         Business ideas are concepts or strategies that can be implemented to generate profit or achieve other objectives. There are various types of business ideas, including traditional brick-and-mortar businesses, online ventures, and innovative startups. Some common categories of business ideas include:
         1. E-commerce platforms: Creating an online store to sell products or services.
@@ -150,26 +164,12 @@ def advanced_niche_score(idea_name, idea_description):
         These are just a few examples of business ideas, and the possibilities are endless. Successful business ideas often involve identifying a market need or solving a problem in a unique or innovative way.
         """
     
-    # Calculate similarity between idea description and generic business ideas content
-   # print("IDEA DESCRIPTION: ", idea_description)
     similarity_score = calculate_similarity(idea_description, generic_business_ideas_content)
-    #print("SIMILARITY SCORE = ", similarity_score)
-    
-    # Calculate sentiment score of idea description
-    sentiment_score = TextBlob(idea_description).sentiment.polarity
-    #print("SENTIMENT SCORE = ", sentiment_score)
-    
-    # Additional advanced techniques can be incorporated here
-    
-   # print("GENERIC RESULT COUNT = ", generic_result_count)
-    # Combine scores using a weighted average or any other method
+    sentiment_score = get_sentiment_score(idea_description)
     niche_score = (similarity_score * 0.6) + (sentiment_score * 0.4)
     
-    # Normalize niche score
-    normalized_niche_score = 1 - (niche_score / generic_result_count)
     
-    return normalized_niche_score
-    # return -math.log(niche_score)
+    return niche_score
     
 
 
@@ -178,7 +178,7 @@ if __name__ == '__main__':
     driver = uc.Chrome()
     # headless=True, use_subprocess=False
 
-    client = OpenAI(api_key="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")
+    client = OpenAI(api_key="")
 
     summarizer_assistant = client.beta.assistants.retrieve(
         assistant_id="asst_H8XwiMUr7FAMvHfLFmVP6oXy"
@@ -261,9 +261,8 @@ if __name__ == '__main__':
             for idea in business_ideas:
                 query = idea["searchquery"]
                 result_count = count_search_results(query)
-                max_count = count_search_results("business ideas")  # You can use a generic query as a reference
-                #niche_score = normalize(result_count, max_count)
-                niche_score = advanced_niche_score(idea["name"], idea["description"])
+                #max_count = count_search_results("business ideas")
+                niche_score = advanced_niche_score(idea["description"])
                 idea["niche_score"] = niche_score
             
 
