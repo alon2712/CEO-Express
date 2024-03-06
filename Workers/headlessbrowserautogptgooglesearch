@@ -254,6 +254,10 @@ if __name__ == '__main__':
                 continue
 
             next_outputs.extend(results) #TODO: Look into this
+            for result in results:
+                databaseInfo.addMarketGapIdeaQuery(result["name"], result["description"], result["searchquery"], advanced_niche_score(result["description"]),
+                                                   datetime.now(), get_sentiment_score(result["description"]))
+
             print(results)
             # need to to get next element to search and add based on results
             print(next_outputs)
@@ -285,3 +289,5 @@ if __name__ == '__main__':
 
             for idea in sorted_business_ideas:
                 print(f"Idea: {idea['searchquery']}, Niche Score: {idea['niche_score']}")
+        
+        next_outputs = databaseInfo.getNextElementToSearch()
