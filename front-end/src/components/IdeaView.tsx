@@ -7,6 +7,8 @@ import Footer from 'footer/FooterIdeaAdd';
 import axios from 'axios';
 import { wait } from '@testing-library/user-event/dist/utils';
 import { BallTriangle } from 'react-loader-spinner';
+import StepByStep from './stepByStep/StepByStep';
+import MarketGapTable from './dataTables/components/MarketGapTable';
 
 interface IdeaViewState {
     ideas: IdeaEntryType[];
@@ -19,6 +21,7 @@ interface IdeaViewState {
     currentNewHistory: string;
     currentUserName: string;
     checkboxDict: { [id: string] : boolean }
+    selectedIdea: IdeaEntryType;
 }
 
 
@@ -35,7 +38,8 @@ export default class IdeaView extends React.Component<{}, IdeaViewState> {
             generateLoading: false,
             currentNewHistory: "",
             currentUserName: "",
-            checkboxDict: {}
+            checkboxDict: {},
+            selectedIdea: undefined
         };
 
         this.updateIdeaDescription = this.updateIdeaDescription.bind(this);
@@ -44,6 +48,8 @@ export default class IdeaView extends React.Component<{}, IdeaViewState> {
         this.deleteIdeaEntry = this.deleteIdeaEntry.bind(this);
         this.reload = this.reload.bind(this);
         this.reloadDontLoad = this.reloadDontLoad.bind(this);
+        this.selectIdea = this.selectIdea.bind(this);
+        this.deselectIdea = this.deselectIdea.bind(this);
         this.generateMore = this.generateMore.bind(this);
         this.updateHistoryName = this.updateHistoryName.bind(this);
         this.updateNewUsername = this.updateNewUsername.bind(this);
@@ -92,15 +98,13 @@ export default class IdeaView extends React.Component<{}, IdeaViewState> {
     }
 
     changeHistoryPage = (page: HistoryType) => {
-        this.setState({ ideas: [], activePage: page, ideasLoading: true })
+        this.setState({ ideas: [], activePage: page, ideasLoading: true, selectedIdea: undefined })
 
         axios.get('/getAllIdeaEntriesForHistory?HistoryID=' + page.HistoryId)
             .then(response => {
-                console.log(response.data)
                 const data = JSON.parse(response.data.message);
 
-                console.log(data)
-                this.setState({ ideas: data, ideasLoading: false });
+                this.setState({ ideas: data, ideasLoading: false, selectedIdea: undefined });
             })
             .catch(error => {
                 console.error('Error getting all ideas:', error);
@@ -108,11 +112,19 @@ export default class IdeaView extends React.Component<{}, IdeaViewState> {
 
     }
 
+    selectIdea = (idea: IdeaEntryType) => {
+        this.setState({ selectedIdea: idea })
+    }
+
+    deselectIdea = () => {
+        console.log("here")
+        this.setState({ selectedIdea: undefined })
+    }
+
     reload = () => {
         this.setState({ ideasLoading: true });
         axios.get('/getAllIdeaEntriesForHistory?HistoryID=' + this.state.activePage.HistoryId)
             .then(response => {
-                console.log(response.data)
                 const data = JSON.parse(response.data.message);
                 
                 let checkDict: {[id:string] : boolean} = {}
@@ -135,7 +147,6 @@ export default class IdeaView extends React.Component<{}, IdeaViewState> {
     reloadDontLoad = () => {
         axios.get('/getAllIdeaEntriesForHistory?HistoryID=' + this.state.activePage.HistoryId)
             .then(response => {
-                console.log(response.data)
                 const data = JSON.parse(response.data.message);
                 let checkDict: {[id:string] : boolean} = {}
                 data.forEach( (value: IdeaEntryType) => {
@@ -146,7 +157,6 @@ export default class IdeaView extends React.Component<{}, IdeaViewState> {
                         checkDict[value.IdeaEntryId] = false
                     }
                   }); 
-                console.log(data)
                 this.setState({ ideas: data, generateLoading: false, checkboxDict: checkDict });
             })
             .catch(error => {
@@ -174,7 +184,6 @@ export default class IdeaView extends React.Component<{}, IdeaViewState> {
                 Description: this.state.currentIdeaName
             })
                 .then(response => {
-                    console.log(response)
                     this.reloadDontLoad();
                 })
                 .catch(error => {
@@ -189,7 +198,6 @@ export default class IdeaView extends React.Component<{}, IdeaViewState> {
                 IdeaEntryId: IdeaEntryId
             })
                 .then(response => {
-                    console.log(response)
                     this.reloadDontLoad();
                 })
                 .catch(error => {
@@ -201,7 +209,6 @@ export default class IdeaView extends React.Component<{}, IdeaViewState> {
 
 
     updateCheckTable(IdeaEntryId: string) {
-        console.log(this.state.checkboxDict)
         let checkDict: {[id:string] : boolean} = this.state.checkboxDict
         checkDict[IdeaEntryId] = !checkDict[IdeaEntryId]
         this.setState({  checkboxDict: checkDict });
@@ -210,12 +217,10 @@ export default class IdeaView extends React.Component<{}, IdeaViewState> {
     }
 
     updateHistoryName(e: React.ChangeEvent<HTMLInputElement>) {
-        console.log("etarget value:" + typeof e.target.value);
         this.setState({ currentNewHistory: e.target.value });
     }
 
     updateNewUsername(e: React.ChangeEvent<HTMLInputElement>) {
-        console.log(e.target.value);
         this.setState({ currentUserName: e.target.value });
     }
 
@@ -226,7 +231,6 @@ export default class IdeaView extends React.Component<{}, IdeaViewState> {
             userName: this.state.currentUserName
         })
             .then(response => {
-                console.log(response)
                 this.getHistory();
             })
             .catch(error => {
@@ -247,24 +251,20 @@ export default class IdeaView extends React.Component<{}, IdeaViewState> {
                     checkedItems.push(value)
                 }
             }); 
-            console.log(checkedItems)
             var descriptionNameConcat = this.state.ideas.map(function (item) {
                 return "(name: " + item.Name + ", description:  " + item.Description + ")";
             }).join(",");
 
-            console.log(descriptionNameConcat)
             axios.post('/getNewIdeas', {
                 HistoryId: this.state.activePage.HistoryId,
                 Ideas: descriptionNameConcat,
                 Count: 1
             })
                 .then(response => {
-                    console.log(response)
                     this.setState({ generateLoading: false })
                     this.reload();
                 })
                 .catch(error => {
-                    console.log(error);
                     this.setState({ generateLoading: false })
                 });
         }
@@ -310,8 +310,6 @@ export default class IdeaView extends React.Component<{}, IdeaViewState> {
             }]
 
         }
-        console.log(data)
-        console.log(this.state.ideasLoading)
         return (
             <>
 
@@ -333,25 +331,39 @@ export default class IdeaView extends React.Component<{}, IdeaViewState> {
                         transitionTimingFunction='linear, linear, ease'>
                         <Portal>
                             <Box>
-                                <Header currentPage={this.state.activePage}/>
+                                <Header selectedIdea={this.state.selectedIdea} currentPage={this.state.activePage} deselectIdea={this.deselectIdea}/>
                             </Box>
 
                         </Portal>
+                        {this.state.selectedIdea == undefined &&
                         <Portal>
                             <Box>
                                 <Footer generateMore={this.generateMore} updateIdeaDescription={this.updateIdeaDescription} updateIdeaName={this.updateIdeaName} addIdeaEntry={this.addIdeaEntry} currentIdeaName={this.state.currentIdeaName} currentIdeaDescription={this.state.currentIdeaDescription} />
                             </Box>
 
                         </Portal>
+    }
+                        {this.state.selectedIdea == undefined ?
                         <Box mt='30px' mb='160px' mx='auto' p={{ base: '20px', md: '30px' }} pe='20px' minH='100vh' pt='50px'>
                             <Box pt={{ base: '130px', md: '80px', xl: '80px' }}>
 
 
 
-                                {<IdeaCheckTable tableData={data} deleteIdeaEntry={this.deleteIdeaEntry} updateCheckTable={this.updateCheckTable} checkboxDict={this.state.checkboxDict}/>}
+                                <IdeaCheckTable tableData={data} deleteIdeaEntry={this.deleteIdeaEntry} selectIdea={this.selectIdea} updateCheckTable={this.updateCheckTable} checkboxDict={this.state.checkboxDict}/>
                             </Box>
-                        </Box>
+                        </Box> : 
+                        <Box mt='70px' mb='160px' mx='auto' p={{ base: '20px', md: '30px' }} pe='20px' minH='100vh' pt='50px'>
+                        <Box pt={{ base: '130px', md: '80px', xl: '80px' }}>
 
+
+
+                        <StepByStep />
+
+                        
+                            <MarketGapTable  tableData={data} deleteIdeaEntry={this.deleteIdeaEntry} updateCheckTable={this.updateCheckTable} checkboxDict={this.state.checkboxDict}/>
+                        </Box>
+                    </Box> 
+                        }
                     </Box>
                 </Box>
 

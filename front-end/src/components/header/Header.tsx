@@ -6,7 +6,7 @@ import { Box, Button, Icon, Breadcrumb, BreadcrumbItem, BreadcrumbLink, Flex, Li
 import { useState, useEffect } from 'react';
 import { IoMdMoon, IoMdSunny } from 'react-icons/io';
 
-export default function Header(props: {currentPage: HistoryType}) {
+export default function Header(props: {currentPage: HistoryType, selectedIdea: IdeaEntryType, deselectIdea: ()=>void}) {
 	const [scrolled, setScrolled] = useState(false);
 
 	useEffect(() => {
@@ -94,8 +94,16 @@ export default function Header(props: {currentPage: HistoryType}) {
 								 {props.currentPage.Name} 
 							</BreadcrumbLink>
 						</BreadcrumbItem>
+						{props.selectedIdea !== undefined &&
+						<BreadcrumbItem color={secondaryText} fontSize='sm'>
+							<BreadcrumbLink href='#' onClick={props.deselectIdea} color={secondaryText}>
+								 {props.selectedIdea.Name} 
+							</BreadcrumbLink>
+						</BreadcrumbItem>
+}
+
 					</Breadcrumb>
-					{/* Here we create navbar brand, based on route name */}
+					<Box mt="6px">
 					<Link
 						color={mainText}
 						href='#'
@@ -112,10 +120,45 @@ export default function Header(props: {currentPage: HistoryType}) {
 						_focus={{
 							boxShadow: 'none'
 						}}>
-						{props.currentPage.Name} by {props.currentPage.UserName} 
+
+{props.selectedIdea !== undefined ?
+						<>{props.selectedIdea.Name}</> :
+						<>{props.currentPage.Name} by {props.currentPage.UserName}</>
+}
+						
 					</Link>
+					</Box>
+					{props.selectedIdea !== undefined &&
+					<Box mt="12px">
+					<Link
+						
+						color={mainText}
+						href='#'
+						bg='inherit'
+						borderRadius='inherit'
+						fontSize='16px'
+						_hover={{ color: { mainText } }}
+						_active={{
+							bg: 'inherit',
+							transform: 'none',
+							borderColor: 'transparent'
+						}}
+						_focus={{
+							boxShadow: 'none'
+						}}>
+					
+						{props.selectedIdea.Description}
+</Link></Box>}
 				</Box>
 				<Box ms='auto' w='max-content'>
+				{props.selectedIdea !== undefined &&
+				<Button
+						variant='brand'
+						mr="20px"
+				onClick={
+				props.deselectIdea} >
+						BACK
+					</Button>}
 					<Button
 						variant='no-hover'
 						bg='transparent'

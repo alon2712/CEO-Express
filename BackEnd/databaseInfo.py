@@ -54,6 +54,20 @@ def addIdeaEntryQuery(ideaName, description, historyId):
     
     return True
 
+def addIdeaEntryQueryGenerated(ideaName, description, historyId):
+    conn = get_conn()
+    cursor = conn.cursor()
+    domain = str(uuid.uuid4())
+    try:
+        cursor.execute("INSERT INTO IdeaEntry (Name, Description, DomainName, HistoryId, IsGenerated) VALUES ( ?, ?, ?, ?, 1)", (ideaName, description, str(domain)[:20], historyId)) 
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        print("An error occurred:", e)
+        return e 
+    
+    return True
+
 
 def deleteIdeaEntryQuery(ideaEntryId):
     conn = get_conn()

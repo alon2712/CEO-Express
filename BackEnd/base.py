@@ -50,7 +50,7 @@ def getNewIdeas():
         print(completion2.choices[0].message.content)
         print(total1)
         print(total2)
-        databaseInfo.addIdeaEntryQuery("Generated: " + completion2.choices[0].message.content, completion.choices[0].message.content, historyId)
+        databaseInfo.addIdeaEntryQueryGenerated(completion2.choices[0].message.content, completion.choices[0].message.content, historyId)
     except  Exception as e:
         exc = e
 
