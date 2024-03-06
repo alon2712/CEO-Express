@@ -1,5 +1,7 @@
 # CEO-Express
 
+User Documentation: https://docs.google.com/document/d/1S5sH1Mk5QXiac3mOCl_XLWAEkFurfPA3/edit?usp=sharing&ouid=100383164718901802279&rtpof=true&sd=true
+
 Current Operational Use Cases:
 1. Brainstorming - The user can input their own ideas of startups and all of this information will be displayed on the screen and saved in the history for later uses.
 2. Clicking Check Boxes - The user can choose which ideas they want to generate more ideas on and will be able to see the display of the new ideas that were generated.
