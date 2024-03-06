@@ -50,7 +50,7 @@ def getNewIdeas():
         print(completion2.choices[0].message.content)
         print(total1)
         print(total2)
-        databaseInfo.addIdeaEntryQuery("Generated: " + completion2.choices[0].message.content, completion.choices[0].message.content, historyId)
+        databaseInfo.addIdeaEntryQueryGenerated(completion2.choices[0].message.content, completion.choices[0].message.content, historyId)
     except  Exception as e:
         exc = e
 
@@ -70,6 +70,15 @@ def addIdeaEntry():
     ideaName = request.json.get('IdeaName')
     description = request.json.get('Description')
     success = databaseInfo.addIdeaEntryQuery(description, ideaName, historyId)
+    response_body = {
+        'message': str(success)
+    }
+    return response_body
+
+@api.route('/deleteIdeaEntry', methods=['POST'])
+def deleteIdeaEntry():
+    ideaEntryId = request.json.get('IdeaEntryId')
+    success = databaseInfo.deleteIdeaEntryQuery(ideaEntryId)
     response_body = {
         'message': str(success)
     }
