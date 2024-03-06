@@ -1,13 +1,29 @@
 import json
+import math
 import random
+import re
 import time
+import requests
 import undetected_chromedriver as uc
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from openai import OpenAI
 from bs4 import BeautifulSoup
 import sys
+from collections import Counter
+from textblob import TextBlob
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+import nltk
+from nltk.corpus import stopwords
+import string
+import spacy
+from datetime import datetime
+import databaseInfo
 
+nltk.download('punkt')
+nltk.download("stopwords")
+nlp = spacy.load("en_core_web_sm")
 
 def search_by_type(driver, search_query):
     i = driver.find_elements(By.TAG_NAME, "textarea")[0]
@@ -25,6 +41,7 @@ def get_all_text(driver):
     driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
     time.sleep(random.random() * 0.2 + 0.3)
     return driver.find_element(By.TAG_NAME, "body").text
+
 
 def get_summary(client, text_input):
     try:
@@ -59,6 +76,7 @@ def get_summary(client, text_input):
         return all_messages.data[0].content[0].text.value
     except:
         return ""
+
 
 def get_results(client, summary):
     try:
@@ -97,16 +115,71 @@ def get_results(client, summary):
     except:
         return []
 
+
 def count_search_results(query):
     url = "https://www.google.com/search?q=" + query
     driver.get(url)
+    search_by_type(driver, query)
     soup = BeautifulSoup(driver.page_source, 'html.parser')
     result_stats = soup.find(id="result-stats").get_text()
     result_count = int(''.join(filter(str.isdigit, result_stats)))
     return result_count
 
-def normalize(count, max_count):
-    return 1 - (count / max_count)
+
+def calculate_similarity(text1, text2):
+    vectorizer = TfidfVectorizer()
+    stopset = set(stopwords.words('english'))
+    tokens_text1 = nltk.word_tokenize(text1)
+    text1_clean = " ".join(filter(lambda word: word not in stopset, tokens_text1))
+    text1_clean = text1_clean.translate(str.maketrans('', '', string.punctuation))
+    nlp_text1 = nlp(text1_clean)
+    lemmatized_tokens_text1 = [token.lemma_ for token in nlp_text1]
+    lemmatized_text1 = ' '.join(lemmatized_tokens_text1)
+
+    stopset = set(stopwords.words('english'))
+    tokens_text2 = nltk.word_tokenize(text2)
+    text2_clean = " ".join(filter(lambda word: word not in stopset, tokens_text2))
+    text2_clean = text2_clean.translate(str.maketrans('', '', string.punctuation))
+    nlp_text2 = nlp(text1_clean)
+    lemmatized_tokens_text2 = [token.lemma_ for token in nlp_text2]
+    lemmatized_text2 = ' '.join(lemmatized_tokens_text2)
+    tfidf_matrix = vectorizer.fit_transform([lemmatized_text1, lemmatized_text2])
+
+    similarity = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:2])[0][0]
+    return similarity
+
+
+def get_sentiment_score(idea_description):
+    sentiment_score = TextBlob(idea_description).sentiment.polarity
+    if sentiment_score < -0.5:
+        return 0
+    elif sentiment_score < 0.5:
+        return 1
+    else:
+        return 2
+
+
+def advanced_niche_score(idea_description):
+    generic_business_ideas_content = """
+        Business ideas are concepts or strategies that can be implemented to generate profit or achieve other objectives. There are various types of business ideas, including traditional brick-and-mortar businesses, online ventures, and innovative startups. Some common categories of business ideas include:
+        1. E-commerce platforms: Creating an online store to sell products or services.
+        2. Freelancing services: Offering specialized skills or services on a freelance basis.
+        3. Subscription-based services: Providing subscription-based access to content or resources.
+        4. Digital marketing agencies: Helping businesses improve their online presence and reach.
+        5. Social media consulting: Advising individuals or businesses on social media strategies.
+        6. Health and wellness products: Developing and selling products related to health and wellness.
+        7. Educational services: Offering tutoring, coaching, or online courses.
+        8. Sustainable and eco-friendly businesses: Promoting environmentally friendly products or practices.
+        These are just a few examples of business ideas, and the possibilities are endless. Successful business ideas often involve identifying a market need or solving a problem in a unique or innovative way.
+        """
+    
+    similarity_score = calculate_similarity(idea_description, generic_business_ideas_content)
+    sentiment_score = TextBlob(idea_description).sentiment.polarity
+    niche_score = (similarity_score * 0.6) + (sentiment_score * 0.4)
+    
+    
+    return niche_score
+    
 
 
 if __name__ == '__main__':
@@ -124,14 +197,17 @@ if __name__ == '__main__':
         assistant_id="asst_Km7vpg8vUvWmQmfPMBMVN58K"
     )
 
-    next_outputs = [{"name": "Business Ideas From Home", "description": "Business Ideas From Home", "searchquery":"Business Ideas From Home"}]
+    databaseInfo.addMarketGapIdeaQuery("Business Ideas From Home", "Business Ideas From Home", "Business Ideas From Home", 
+                          advanced_niche_score("Business Ideas From Home"), datetime.now(), get_sentiment_score("Business Ideas From Home"))
+    next_outputs = databaseInfo.getNextElementToSearch()
+
     while len(next_outputs) > 0:
 
         print("\n")
         print("\n")
         print("\n")
         print("\n")
-        print("NEW CYCLE SEARCHING: " + next_outputs[0]["searchquery"])
+        print("NEW CYCLE SEARCHING: " + next_outputs[0]["SearchQuery"])
         print("\n")
         print("\n")
         print("\n")
@@ -140,11 +216,11 @@ if __name__ == '__main__':
         time.sleep(3)
         driver.get('https://www.google.com/search')
 
-        search_by_type(driver, next_outputs[0]["searchquery"])
+        search_by_type(driver, next_outputs[0]["SearchQuery"])
 
         links = []
         business_ideas = []
-        query = next_outputs[0]["searchquery"]
+        query = next_outputs[0]["SearchQuery"]
         links = [] 
         n_pages = 2
         for page in range(1, n_pages):
@@ -158,7 +234,7 @@ if __name__ == '__main__':
         for h in search:
             links.append(h.a.get('href'))
 
-        text_input = ""
+        text_input = get_all_text(driver)
         for link in links:
             driver.get(link)
             driver.implicitly_wait(20)
@@ -177,13 +253,16 @@ if __name__ == '__main__':
             if len(results) == []:
                 continue
 
-            next_outputs.extend(results)
+            next_outputs.extend(results) #TODO: Look into this
+            print(results)
+            # need to to get next element to search and add based on results
             print(next_outputs)
 
             print("\n")
             print(next_outputs)
 
-            next_outputs = next_outputs[1:]
+            #next_outputs = next_outputs[1:]
+            databaseInfo.updateHasBeenSearched(next_outputs[0]["MarketGapIdeaID"])
 
             for idea in results:
                 business_ideas.append({
@@ -193,12 +272,10 @@ if __name__ == '__main__':
                 })
 
         if business_ideas:
-            # Niche score for each business idea
             for idea in business_ideas:
                 query = idea["searchquery"]
                 result_count = count_search_results(query)
-                max_count = count_search_results("business ideas")  # You can use a generic query as a reference
-                niche_score = normalize(result_count, max_count)
+                niche_score = advanced_niche_score(idea["description"])
                 idea["niche_score"] = niche_score
             
 
