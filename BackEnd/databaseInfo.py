@@ -66,35 +66,7 @@ def createNewHistory(HistoryName, userName):
         print("An error occurred:", e)
         return e 
     return True
-
-# TODO: This needs to be edited!!!!!!!!!
-def addMarketGapIdeaQuery(ideaName, ideaDescription, searchQuery, hasBeenSearched, nicheScore, createDate, sentiment):
-    conn = get_conn()
-    cursor = conn.cursor()
-    domain = str(uuid.uuid4())
-    try:
-        cursor.execute("INSERT INTO MarketGapIdea (Name, Description, SearchQuery, HasBeenSearched, NicheScore, CreateDate, Sentiment) VALUES ( ?, ?, ?, ?, 0)", 
-                       (ideaName, ideaDescription, searchQuery, hasBeenSearched, nicheScore, createDate, sentiment))
-        conn.commit()
-        conn.close()
-    except Exception as e:
-        print("An error occurred:", e)
-        return e 
     
-    return True
-
-def getNextElementToSearch():
-    conn = get_conn()
-    cursor = conn.cursor()
-    domain = str(uuid.uuid4())
-    try:
-        cursor.execute("SELECT TOP 1 * FROM MarketGapIdea WHERE HasBeenSearched = 0 ORDER BY newid()")
-        conn.commit()
-        conn.close()
-    except Exception as e:
-        print("An error occurred:", e)
-        return e 
-    return True
 
 def generate_custom_guid():
     generated_uuid = uuid.uuid4()
