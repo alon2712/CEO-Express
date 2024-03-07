@@ -73,12 +73,12 @@ export default function IdeaCheckTable(props: IdeaCheckTableType) {
 				
 				
 					info.row.original.IdeaEntryId == "" ? 
-					<Flex>
+					<Flex align='center'>
 <Text color={textColor} fontSize='sm' fontWeight='700' w='100%'>
 {info.getValue()}
 </Text>
 </Flex>
-:<Flex>
+:<Flex align='center'>
 				<Text color={textColor} fontSize='sm' fontWeight='700' w='100%'>
 					{info.getValue()}
 				</Text>
@@ -89,7 +89,6 @@ export default function IdeaCheckTable(props: IdeaCheckTableType) {
 			  {info.row.original.IdeaEntryId != "" &&
 					<CloseButton mt="5px" ml='20px' onClick={() => {
 						props.deleteIdeaEntry(info.row.original.IdeaEntryId)
-						console.log(info, info.row.original.IdeaEntryId)
 				}}  
 				/>
 					}

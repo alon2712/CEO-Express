@@ -22,6 +22,7 @@ interface FooterProps {
     currentIdeaDescription: string;
     addIdeaEntry: () => void;
     generateMore: () => void;
+    generateLoading: boolean;
 }
 
 export default function FooterIdeaAdd(props: FooterProps) {
@@ -172,7 +173,7 @@ export default function FooterIdeaAdd(props: FooterProps) {
 
 
                         <Button
-                           
+                            isLoading={props.generateLoading}
                             fontSize='sm'
                             variant='brand'
                             fontWeight='500'

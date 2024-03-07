@@ -9,6 +9,7 @@ import { wait } from '@testing-library/user-event/dist/utils';
 import { BallTriangle } from 'react-loader-spinner';
 import StepByStep from './stepByStep/StepByStep';
 import MarketGapTable from './dataTables/components/MarketGapTable';
+import NameDescriptionIdea from './stepByStep/NameDescriptionIdea';
 
 interface IdeaViewState {
     ideas: IdeaEntryType[];
@@ -242,7 +243,7 @@ export default class IdeaView extends React.Component<{}, IdeaViewState> {
     generateMore() {
 
         if (!this.state.generateLoading) {
-            this.setState({ generateLoading: true })
+            
 
 
             let checkedItems: IdeaEntryType[] = []
@@ -251,17 +252,23 @@ export default class IdeaView extends React.Component<{}, IdeaViewState> {
                     checkedItems.push(value)
                 }
             }); 
-            var descriptionNameConcat = this.state.ideas.map(function (item) {
-                return "(name: " + item.Name + ", description:  " + item.Description + ")";
-            }).join(",");
 
+            if(checkedItems.length === 0)
+            {
+                return;
+            }
+            this.setState({ generateLoading: true })
+            var descriptionNameConcat = checkedItems.map(function (item) {
+                return "(name: " + item.Name + "\n description:  " + item.Description + ")";
+            }).join(",");
+            console.log(descriptionNameConcat)
             axios.post('/getNewIdeas', {
                 HistoryId: this.state.activePage.HistoryId,
-                Ideas: descriptionNameConcat,
-                Count: 1
+                Ideas: descriptionNameConcat
             })
                 .then(response => {
                     this.setState({ generateLoading: false })
+                    console.log(response)
                     this.reload();
                 })
                 .catch(error => {
@@ -272,21 +279,8 @@ export default class IdeaView extends React.Component<{}, IdeaViewState> {
 
     }
     render() {
-
         let data = this.state.ideas;
-        if (this.state.generateLoading) {
-            data = [{
-                IdeaEntryId: "",
-                Name: "Generating a New Idea...",
-                Description: "",
-                DomainName: "",
-                HistoryId: "",
-                IsGenerated: undefined,
-
-            }]
-
-        }
-        else if (this.state.ideasLoading) {
+        if (this.state.ideasLoading) {
             data = [{
                 IdeaEntryId: "",
                 Name: "Loading...",
@@ -338,7 +332,7 @@ export default class IdeaView extends React.Component<{}, IdeaViewState> {
                         {this.state.selectedIdea == undefined &&
                         <Portal>
                             <Box>
-                                <Footer generateMore={this.generateMore} updateIdeaDescription={this.updateIdeaDescription} updateIdeaName={this.updateIdeaName} addIdeaEntry={this.addIdeaEntry} currentIdeaName={this.state.currentIdeaName} currentIdeaDescription={this.state.currentIdeaDescription} />
+                                <Footer generateLoading={this.state.generateLoading} generateMore={this.generateMore} updateIdeaDescription={this.updateIdeaDescription} updateIdeaName={this.updateIdeaName} addIdeaEntry={this.addIdeaEntry} currentIdeaName={this.state.currentIdeaName} currentIdeaDescription={this.state.currentIdeaDescription} />
                             </Box>
 
                         </Portal>
@@ -352,10 +346,11 @@ export default class IdeaView extends React.Component<{}, IdeaViewState> {
                                 <IdeaCheckTable tableData={data} deleteIdeaEntry={this.deleteIdeaEntry} selectIdea={this.selectIdea} updateCheckTable={this.updateCheckTable} checkboxDict={this.state.checkboxDict}/>
                             </Box>
                         </Box> : 
-                        <Box mt='70px' mb='160px' mx='auto' p={{ base: '20px', md: '30px' }} pe='20px' minH='100vh' pt='50px'>
+                        <Box mt='30px' mb='160px' mx='auto' p={{ base: '20px', md: '30px' }} pe='20px' minH='100vh' pt='50px'>
                         <Box pt={{ base: '130px', md: '80px', xl: '80px' }}>
 
-
+                        <NameDescriptionIdea name={this.state.selectedIdea.Name} description={this.state.selectedIdea.Description}/>
+                       
 
                         <StepByStep />
 

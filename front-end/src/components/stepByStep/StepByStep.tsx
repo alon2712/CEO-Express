@@ -9,7 +9,7 @@ export default function StepByStep(props: {}) {
     const directions: string[] = ["1. step 1</br></br><a>test</a>","2. step 2","3. step 3","4. step 4"]
     return (
 
-<><Card borderColor="black" bg={bgItem} mt="5px" px='24px' py='21px' >
+<><Card borderColor="black" bg={bgItem} mt="40px" px='24px' py='21px' >
             <Flex
                 align={{ sm: 'flex-start', lg: 'center' }}
                 justify='space-between'
