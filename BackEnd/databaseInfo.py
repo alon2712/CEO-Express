@@ -133,6 +133,18 @@ def addStepByStepForIdea(StepNum, IdeaEntryId, step):
 
     return True
 
+
+def getTopMarketGapEntries():
+    returnList = []
+    conn = get_conn()
+    cursor = conn.cursor()
+    cursor.execute("select  * from MarketGapIdea where MarketGapIdeaID in (select top 30 MarketGapIdeaID from MarketGapIdea order by (newid())) order by NicheScore desc")
+    columns = [column[0] for column in cursor.description]
+    for row in cursor.fetchall():
+        returnList.append(dict(zip(columns, row)))
+    conn.close()
+    return returnList
+
 #This can be changed to test the endpoints
 # def main():
 #     idea_entries = addIdeaEntryQuery("testing ideas2", "this is a test", "d0594ee2-5748-4da9-9cc2-3e606618c9a1")
