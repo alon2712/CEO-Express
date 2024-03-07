@@ -23,7 +23,7 @@ http://127.0.0.1:5000/getNewIdeas?Ideas=Swimmer,Surfer&Count=2
 @api.route('/getNewIdeas', methods=['POST'])
 def getNewIdeas():
     client = OpenAI(
-        api_key="API-KEY"
+        api_key=""
     )
 
     ideas = request.json.get('Ideas')
@@ -51,6 +51,7 @@ def getNewIdeas():
         print(total1)
         print(total2)
         databaseInfo.addIdeaEntryQueryGenerated(completion2.choices[0].message.content, completion.choices[0].message.content, historyId)
+        generateStepByStep(completion2.choices[0].message.content, completion.choices[0].message.content, 1)
     except  Exception as e:
         exc = e
 
@@ -70,6 +71,7 @@ def addIdeaEntry():
     ideaName = request.json.get('IdeaName')
     description = request.json.get('Description')
     success = databaseInfo.addIdeaEntryQuery(description, ideaName, historyId)
+    generateStepByStep(ideaName, description, 1)
     response_body = {
         'message': str(success)
     }
@@ -136,5 +138,27 @@ def accessData(info):
 def doComputation(info, name):
     return info
 
+def generateStepByStep(IdeaName, IdeaDescription, ideaId):
+    client = OpenAI(
+        api_key=""
+    )
+
+    try:
+        print('Generating StepByStep')
+        completion = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[{"role": "user", "content": "You are a new business entrepreneur, with your new business:" + IdeaName + ", which can be summarized as: " + IdeaDescription + ". Please provide a list of the first 10 steps you will take to make this business a reality. Each step should be around 20 to 50 words. This must be returned in this Schema: {'result': [{'step': The first step', 'link': 'useful link'}, {'step': 'The second step', 'link': 'useful link'}, {'step': 'third step', 'link': 'useful link'}]}"}]
+        )
+        print(completion.choices[0].message.content)
+        text = ""
+        for c in completion.choices[0].message.content:
+            if c == "'":
+                text+='"'
+            else:
+                text+=c
+        json_object = json.loads(text)
+        databaseInfo.addStepByStepForIdea(IdeaName, json_object, ideaId)
+    except  Exception as e:
+        print(e)
 
 
