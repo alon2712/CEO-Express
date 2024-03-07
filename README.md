@@ -8,7 +8,7 @@ Current Operational Use Cases:
 3. Add Button - Clicking on the add button will generate new ideas based on the current existing ones
 4. Viewing step-by-step page: User will receive a comprehensive step-by-step page of what the startup's step to be created would be with helpful links.
 
-**Instructions**
+**Instructions / Developer's Guide**
 
 Connecting Flask to ReactJs
 Run these commands in your terminal. Make sure that you version 20 of Node before running these commands.
