@@ -18,10 +18,13 @@ import nltk
 from nltk.corpus import stopwords
 import string
 import spacy
+from datetime import datetime
+import market_gaps_database_info
 
 nltk.download('punkt')
 nltk.download("stopwords")
 nlp = spacy.load("en_core_web_sm")
+
 
 def search_by_type(driver, search_query):
     i = driver.find_elements(By.TAG_NAME, "textarea")[0]
@@ -43,6 +46,7 @@ def get_all_text(driver):
 
 def get_summary(client, text_input):
     try:
+        print("Generating summary for crawled content")
         thread = client.beta.threads.create()
 
         message = client.beta.threads.messages.create(
@@ -66,6 +70,8 @@ def get_summary(client, text_input):
             if keep_retrieving_run.status == "completed":
                 print("\n")
                 break
+            if keep_retrieving_run.status == "failed":
+                return ""
 
         all_messages = client.beta.threads.messages.list(
             thread_id=thread.id
@@ -78,12 +84,12 @@ def get_summary(client, text_input):
 
 def get_results(client, summary):
     try:
-
+        print("Generating new ideas")
         thread = client.beta.threads.create()
 
         message = client.beta.threads.messages.create(
             thread_id=thread.id,
-            role= "user",
+            role="user",
             content=summary
         )
 
@@ -97,13 +103,13 @@ def get_results(client, summary):
                 thread_id=thread.id,
                 run_id=run.id
             )
-            print(f"Run status: {keep_retrieving_run.status}")
-
-            if keep_retrieving_run.status == "completed":
+            if keep_retrieving_run.status == "failed":
+                time.sleep(60)
+                return []
+            elif keep_retrieving_run.status == "completed":
                 print("\n")
                 break
             elif keep_retrieving_run.status == 'requires_action':
-                print('requires action')
                 print("\n")
 
                 output = keep_retrieving_run.required_action.submit_tool_outputs.tool_calls[0].function.arguments
@@ -113,15 +119,6 @@ def get_results(client, summary):
     except:
         return []
 
-
-def count_search_results(query):
-    url = "https://www.google.com/search?q=" + query
-    driver.get(url)
-    search_by_type(driver, query)
-    soup = BeautifulSoup(driver.page_source, 'html.parser')
-    result_stats = soup.find(id="result-stats").get_text()
-    result_count = int(''.join(filter(str.isdigit, result_stats)))
-    return result_count
 
 
 def calculate_similarity(text1, text2):
@@ -149,9 +146,9 @@ def calculate_similarity(text1, text2):
 
 def get_sentiment_score(idea_description):
     sentiment_score = TextBlob(idea_description).sentiment.polarity
-    if sentiment_score < -0.5:
+    if sentiment_score < 0.1:
         return 0
-    elif sentiment_score < 0.5:
+    elif sentiment_score < 0.35:
         return 1
     else:
         return 2
@@ -170,22 +167,19 @@ def advanced_niche_score(idea_description):
         8. Sustainable and eco-friendly businesses: Promoting environmentally friendly products or practices.
         These are just a few examples of business ideas, and the possibilities are endless. Successful business ideas often involve identifying a market need or solving a problem in a unique or innovative way.
         """
-    
+
     similarity_score = calculate_similarity(idea_description, generic_business_ideas_content)
     sentiment_score = TextBlob(idea_description).sentiment.polarity
     niche_score = (similarity_score * 0.6) + (sentiment_score * 0.4)
-    
-    
+
     return niche_score
-    
 
 
 if __name__ == '__main__':
     time.sleep(random.random() * 0.2 + 0.3)
     driver = uc.Chrome()
-    # headless=True, use_subprocess=False
 
-    client = OpenAI(api_key="")
+    client = OpenAI(api_key="API-KEY")
 
     summarizer_assistant = client.beta.assistants.retrieve(
         assistant_id="asst_H8XwiMUr7FAMvHfLFmVP6oXy"
@@ -195,87 +189,53 @@ if __name__ == '__main__':
         assistant_id="asst_Km7vpg8vUvWmQmfPMBMVN58K"
     )
 
-    next_outputs = [{"name": "Business Ideas From Home", "description": "Business Ideas From Home", "searchquery":"Business Ideas From Home"}]
-    while len(next_outputs) > 0:
 
+    next_outputs = market_gaps_database_info.getNextElementToSearch()
+
+    while len(next_outputs) > 0:
         print("\n")
-        print("\n")
-        print("\n")
-        print("\n")
-        print("NEW CYCLE SEARCHING: " + next_outputs[0]["searchquery"])
-        print("\n")
-        print("\n")
-        print("\n")
-        print("\n")
+        print("NEW CYCLE SEARCHING: " + next_outputs[0]["SearchQuery"])
         print("\n")
         time.sleep(3)
-        driver.get('https://www.google.com/search')
 
-        search_by_type(driver, next_outputs[0]["searchquery"])
+        query = next_outputs[0]["SearchQuery"].replace('"','')
 
         links = []
-        business_ideas = []
-        query = next_outputs[0]["searchquery"]
-        links = [] 
-        n_pages = 2
-        for page in range(1, n_pages):
-            url = "http://www.google.com/search?q=" + query + "&start=" +      str((page - 1) * 10) + "&num=5"
-            driver.get(url)
-            soup = BeautifulSoup(driver.page_source, 'html.parser')
-            search = soup.find_all('div', class_="yuRUbf")
-            for h in search:
-                links.append(h.a.get('href'))
+
+        driver.get('https://www.google.com/search')
+        search_by_type(driver, query)
+        time.sleep(3)
+        soup = BeautifulSoup(driver.page_source, 'html.parser')
         search = soup.find_all('div', class_="yuRUbf")
         for h in search:
             links.append(h.a.get('href'))
 
+        links = [i for n, i in enumerate(links) if i not in links[:n]]
         text_input = get_all_text(driver)
-        for link in links:
+        for link in links[:2]:
             driver.get(link)
-            driver.implicitly_wait(20)
-            time.sleep(random.random() * 0.2 + 0.1)
-            text_input += get_all_text(driver)
-            time.sleep(random.random() * 0.2 + 0.1)
+            driver.implicitly_wait(3)
+            text_input += get_all_text(driver)[:5000]
+            time.sleep(3)
 
-            summary = get_summary(client, text_input)
+        summary = get_summary(client, text_input)
 
-            if summary == "":
-                continue
+        if summary == "":
+            continue
 
-            print(summary)
-            results = get_results(client, summary)
+        print(summary)
+        results = get_results(client, summary)
 
-            if len(results) == []:
-                continue
+        if len(results) == 0:
+            continue
 
-            next_outputs.extend(results)
-            print(next_outputs)
+        print(results)
 
-            print("\n")
-            print(next_outputs)
+        for result in results:
+            market_gaps_database_info.addMarketGapIdeaQuery(result["name"], result["description"],
+                                                            result["searchquery"],
+                                                            advanced_niche_score(result["description"]),
+                                                            get_sentiment_score(result["description"]))
 
-            next_outputs = next_outputs[1:]
-
-            for idea in results:
-                business_ideas.append({
-                    "name": idea["name"],
-                    "description": idea["description"],
-                    "searchquery": idea["searchquery"]
-                })
-
-        if business_ideas:
-            # Niche score for each business idea
-            for idea in business_ideas:
-                query = idea["searchquery"]
-                result_count = count_search_results(query)
-                #max_count = count_search_results("business ideas")
-                niche_score = advanced_niche_score(idea["description"])
-                idea["niche_score"] = niche_score
-            
-
-            sorted_business_ideas = sorted(business_ideas, key=lambda x: x["niche_score"], reverse=True)
-            print("\n\n\n")
-            print("BUSINESS IDEAS RANKED BY NICHE SCORES:")
-
-            for idea in sorted_business_ideas:
-                print(f"Idea: {idea['searchquery']}, Niche Score: {idea['niche_score']}")
+        market_gaps_database_info.updateHasBeenSearched(next_outputs[0]["MarketGapIdeaID"])
+        next_outputs = market_gaps_database_info.getNextElementToSearch()

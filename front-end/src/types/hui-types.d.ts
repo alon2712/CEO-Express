@@ -17,7 +17,16 @@ declare global {
         IsGenerated: number;
 	}
 
-        
+        interface TopMarketGapEntryType {
+                MarketGapIdeaID: string;
+                Name: string;
+                Description: string;
+                HasBeenSearched: boolean;
+                NicheScore: string;
+                CreateDate: string;
+                Sentiment: number;
+                }
+
 	interface StepByStepEntry {
                 StepNum: number;
                 Description: string;

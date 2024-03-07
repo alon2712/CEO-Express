@@ -184,6 +184,19 @@ def getAllHistory():
     return response_body 
     
 """
+This endpoint is used to list all of the top market gaps
+Called like so:
+http://127.0.0.1:5000/getTopMarketGaps
+"""
+@api.route('/getTopMarketGaps', methods=['GET'])
+def getTopMarketGaps():
+    returnList = databaseInfo.getTopMarketGapEntries()
+    response_body = {
+        'message': json.dumps(returnList, default=str, indent = 2)
+    }
+    return response_body 
+
+"""
 This endpoint gets all of the ideas and its details for a specific history.
 Called like so:
 http://127.0.0.1:5000/getAllIdeaEntriesForHistory?HistoryID=b49d01e1-9d78-41bc-9a49-d037c4747a25

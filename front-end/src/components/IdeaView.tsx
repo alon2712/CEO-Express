@@ -24,6 +24,7 @@ interface IdeaViewState {
     checkboxDict: { [id: string] : boolean }
     selectedIdea: IdeaEntryType;
     stepByStepPlan: StepByStepEntry[];
+    topMarketGaps: TopMarketGapEntryType[];
 }
 
 
@@ -32,6 +33,7 @@ export default class IdeaView extends React.Component<{}, IdeaViewState> {
         super(props);
         this.state = {
             ideas: [],
+            topMarketGaps: [],
             currentIdeaName: '',
             currentIdeaDescription: '',
             history: [],
@@ -59,6 +61,7 @@ export default class IdeaView extends React.Component<{}, IdeaViewState> {
         this.updateCheckTable = this.updateCheckTable.bind(this);
         this.createNewHistory = this.createNewHistory.bind(this); 
         this.getStepByStepList = this.getStepByStepList.bind(this); 
+        this.getTopMarketGaps = this.getTopMarketGaps.bind(this); 
     }
 
     componentDidMount() {
@@ -118,14 +121,29 @@ export default class IdeaView extends React.Component<{}, IdeaViewState> {
     }
 
     changeHistoryPage = (page: HistoryType) => {
-        this.setState({ ideas: [], activePage: page, ideasLoading: true, selectedIdea: undefined, stepByStepPlan: undefined })
+        this.setState({ ideas: [], activePage: page, ideasLoading: true, selectedIdea: undefined, stepByStepPlan: undefined, topMarketGaps: [] })
 
         axios.get('/getAllIdeaEntriesForHistory?HistoryID=' + page.HistoryId)
             .then(response => {
                 const data = JSON.parse(response.data.message);
 
-                this.setState({ ideas: data, ideasLoading: false, selectedIdea: undefined, stepByStepPlan: undefined });
+                this.setState({ ideas: data, ideasLoading: false, selectedIdea: undefined, stepByStepPlan: undefined, topMarketGaps: [] });
             })
+            .catch(error => {
+                console.error('Error getting all ideas:', error);
+            });
+
+    }
+
+    getTopMarketGaps = () => {
+        this.setState({ topMarketGaps: [] })
+
+        axios.get('/getTopMarketGaps')
+            .then(response => {
+                const data = JSON.parse(response.data.message);
+                this.setState({ topMarketGaps: data });
+           
+             })
             .catch(error => {
                 console.error('Error getting all ideas:', error);
             });
@@ -134,12 +152,14 @@ export default class IdeaView extends React.Component<{}, IdeaViewState> {
 
     selectIdea = (idea: IdeaEntryType) => {
         this.setState({ selectedIdea: idea })
+        this.getTopMarketGaps();
         this.getStepByStepList(idea);
+       
     }
 
     deselectIdea = () => {
         console.log("here")
-        this.setState({ selectedIdea: undefined, stepByStepPlan: undefined })
+        this.setState({ selectedIdea: undefined, stepByStepPlan: undefined, topMarketGaps: []})
     }
 
     reload = () => {
@@ -298,7 +318,7 @@ export default class IdeaView extends React.Component<{}, IdeaViewState> {
 
 
     }
-    render() {
+    render() { 
         let data = this.state.ideas;
         if (this.state.ideasLoading) {
             data = [{
@@ -369,21 +389,13 @@ export default class IdeaView extends React.Component<{}, IdeaViewState> {
                         <Box mt='30px' mb='160px' mx='auto' p={{ base: '20px', md: '30px' }} pe='20px' minH='100vh' pt='50px'>
                         <Box pt={{ base: '130px', md: '80px', xl: '80px' }}>
 
-                        <NameDescriptionIdea name={this.state.selectedIdea.Name} description={this.state.selectedIdea.Description}/>
+                        <NameDescriptionIdea name={this.state.selectedIdea.Name} isGenerated={this.state.selectedIdea.IsGenerated} description={this.state.selectedIdea.Description}/>
                        
 
                         <StepByStep stepByStepPlan={this.state.stepByStepPlan}/>
 
                         
-                            <MarketGapTable  tableData={[{
-                                IdeaEntryId: "",
-                                Name: "No Similar Market Gaps Found... You thought of a good one!",
-                                Description: "",
-                                DomainName: "",
-                                HistoryId: "",
-                                IsGenerated: undefined,
-                
-                            }]} deleteIdeaEntry={this.deleteIdeaEntry} updateCheckTable={this.updateCheckTable} checkboxDict={this.state.checkboxDict}/>
+                            <MarketGapTable  tableData={this.state.topMarketGaps}/>
                         </Box>
                     </Box> 
                         }

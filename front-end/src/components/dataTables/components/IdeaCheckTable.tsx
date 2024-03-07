@@ -29,6 +29,7 @@ interface IdeaCheckTableType{
 
 // const columns = columnsDataCheck;
 export default function IdeaCheckTable(props: IdeaCheckTableType) {
+	console.log(props.tableData)
 	const columnHelper = createColumnHelper<IdeaEntryType>();
 	const [sorting, setSorting] = React.useState<SortingState>([]);
 	const textColor = useColorModeValue('secondaryGray.900', 'white');
@@ -52,7 +53,7 @@ export default function IdeaCheckTable(props: IdeaCheckTableType) {
 					me='10px' />}
 
 					<Text color={textColor} fontSize='sm' fontWeight='700'>
-					{info.row.original.IsGenerated === 1 && 
+					{info.row.original.IsGenerated && 
 					<UnlockIcon color="teal" mr='5px' mt='-3px' />}
 						{info.getValue()}
 					</Text>

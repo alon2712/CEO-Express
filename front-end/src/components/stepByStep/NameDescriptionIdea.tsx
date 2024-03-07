@@ -1,8 +1,8 @@
 import React from 'react';
 import { Box, Button, Card, Flex, Heading, Text, useColorModeValue } from '@chakra-ui/react';
+import { UnlockIcon } from '@chakra-ui/icons';
 
-export default function NameDescriptionIdea(props: {description: string, name: string}) {
-
+export default function NameDescriptionIdea(props: {description: string, name: string, isGenerated:number}) {
     const textColor = useColorModeValue('navy.700', 'white');
     const bgItem = useColorModeValue('white', 'navy.700');
     return (
@@ -15,7 +15,9 @@ export default function NameDescriptionIdea(props: {description: string, name: s
             w='100%'
             
             >
-            <Text color={textColor} fontSize='xl' fontWeight='600'>
+            <Text color={textColor} fontSize='xl' fontWeight='600'>					
+            {props.isGenerated && 
+					<UnlockIcon color="teal" mr='5px' mt='-3px' />}
             {props.name}
             </Text>
         </Flex>
