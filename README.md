@@ -11,7 +11,7 @@ Current Operational Use Cases:
 **Instructions**
 
 Connecting Flask to ReactJs
-Run these commands in your terminal 
+Run these commands in your terminal. Make sure that you version 20 of Node before running these commands.
 1. Run command apt install python3.10-venv
 2. sudo apt install python3-pip
 3. sudo apt install npm
