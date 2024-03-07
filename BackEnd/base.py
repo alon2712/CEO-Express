@@ -147,7 +147,7 @@ def generateStepByStep(IdeaName, IdeaDescription, ideaId):
         print('Generating StepByStep')
         completion = client.chat.completions.create(
             model="gpt-3.5-turbo",
-            messages=[{"role": "user", "content": "You are a new business entrepreneur, with your new business:" + IdeaName + ", which can be summarized as: " + IdeaDescription + ". Please provide a list of the first 10 steps you will take to make this business a reality. Each step should be max 10 words. This must be returned in this Schema: {'result': [{'step': The first step', 'link': 'useful link'}, {'step': 'The second step', 'link': 'useful link'}, {'step': 'third step', 'link': 'useful link'}]}"}]
+            messages=[{"role": "user", "content": "You are a new business entrepreneur, with your new business:" + IdeaName + ", which can be summarized as: " + IdeaDescription + ". Please provide a list of the first 10 steps you will take to make this business a reality. Each step should be around 20 to 50 words. This must be returned in this Schema: {'result': [{'step': The first step', 'link': 'useful link'}, {'step': 'The second step', 'link': 'useful link'}, {'step': 'third step', 'link': 'useful link'}]}"}]
         )
         print(completion.choices[0].message.content)
         text = ""
