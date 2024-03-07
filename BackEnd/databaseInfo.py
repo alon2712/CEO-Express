@@ -106,30 +106,24 @@ def get_conn():
     return conn
 
 
-def getStepByStepForIdea(IdeaId):
+def getStepByStepForIdea(IdeaEntryId):
     returnList = []
     conn = get_conn()
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM StepByStepEntry WHERE IdeaEntryId=? ORDER BY StepNum", IdeaId)
+    cursor.execute("SELECT StepNum, Description FROM StepByStepEntry WHERE IdeaEntryId=? ORDER BY StepNum asc", IdeaEntryId)
     columns = [column[0] for column in cursor.description]
     for row in cursor.fetchall():
         returnList.append(dict(zip(columns, row)))
     conn.close()
     return returnList
 
-def addStepByStepForIdea(IdeaEntryId, stepByStepJson, ideaId):
+def addStepByStepForIdea(StepNum, IdeaEntryId, step):
     conn = get_conn()
     cursor = conn.cursor()
-    domain = str(uuid.uuid4())
 
     try:
-        data = json.dumps(stepByStepJson)
-        print('data: ')
-        print(stepByStepJson['result'])
-        for i in range(len(stepByStepJson['result'])):
-            string = "Step " + str(i) + ": " + stepByStepJson['result'][i]['step'] + '<br\> <br\> <a href ="' + stepByStepJson['result'][i]['link'] + '">' + stepByStepJson['result'][i]['link'] + '</a>'
-            print(string)
-            #cursor.execute("INSERT INTO StepByStepEntry (StepNum, Description, IdeaEntryId) VALUES ( ?, ?, ?)", (i, string, ideaId))
+        string = str(StepNum+1) + ". ("+step["step_reason"] +')<br/> <br/>' + step["step_information"]+'<br/> <br/>Possible Resource: <a href ="' + step["step_resource"] + '">' + step["step_resource"] + '</a>'
+        cursor.execute("INSERT INTO StepByStepEntry (StepNum, Description, IdeaEntryId) VALUES ( ?, ?, ?)", (StepNum, string, IdeaEntryId))
         conn.commit()
         conn.close()
 

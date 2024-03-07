@@ -23,6 +23,7 @@ interface IdeaViewState {
     currentUserName: string;
     checkboxDict: { [id: string] : boolean }
     selectedIdea: IdeaEntryType;
+    stepByStepPlan: StepByStepEntry[];
 }
 
 
@@ -40,7 +41,8 @@ export default class IdeaView extends React.Component<{}, IdeaViewState> {
             currentNewHistory: "",
             currentUserName: "",
             checkboxDict: {},
-            selectedIdea: undefined
+            selectedIdea: undefined,
+            stepByStepPlan: undefined
         };
 
         this.updateIdeaDescription = this.updateIdeaDescription.bind(this);
@@ -56,6 +58,7 @@ export default class IdeaView extends React.Component<{}, IdeaViewState> {
         this.updateNewUsername = this.updateNewUsername.bind(this);
         this.updateCheckTable = this.updateCheckTable.bind(this);
         this.createNewHistory = this.createNewHistory.bind(this); 
+        this.getStepByStepList = this.getStepByStepList.bind(this); 
     }
 
     componentDidMount() {
@@ -98,14 +101,30 @@ export default class IdeaView extends React.Component<{}, IdeaViewState> {
             });
     }
 
+    getStepByStepList = (idea: IdeaEntryType) => {
+        axios.post('/getStepByStep', {
+            IdeaEntryId: idea.IdeaEntryId,
+            Name:  idea.Name,
+            Description: idea.Description 
+        })
+            .then(response => {
+                const data = JSON.parse(response.data.message);
+                this.setState({ stepByStepPlan: data });
+                console.log(response)
+            })
+            .catch(error => {
+                console.log(error)
+            });
+    }
+
     changeHistoryPage = (page: HistoryType) => {
-        this.setState({ ideas: [], activePage: page, ideasLoading: true, selectedIdea: undefined })
+        this.setState({ ideas: [], activePage: page, ideasLoading: true, selectedIdea: undefined, stepByStepPlan: undefined })
 
         axios.get('/getAllIdeaEntriesForHistory?HistoryID=' + page.HistoryId)
             .then(response => {
                 const data = JSON.parse(response.data.message);
 
-                this.setState({ ideas: data, ideasLoading: false, selectedIdea: undefined });
+                this.setState({ ideas: data, ideasLoading: false, selectedIdea: undefined, stepByStepPlan: undefined });
             })
             .catch(error => {
                 console.error('Error getting all ideas:', error);
@@ -115,11 +134,12 @@ export default class IdeaView extends React.Component<{}, IdeaViewState> {
 
     selectIdea = (idea: IdeaEntryType) => {
         this.setState({ selectedIdea: idea })
+        this.getStepByStepList(idea);
     }
 
     deselectIdea = () => {
         console.log("here")
-        this.setState({ selectedIdea: undefined })
+        this.setState({ selectedIdea: undefined, stepByStepPlan: undefined })
     }
 
     reload = () => {
@@ -352,10 +372,18 @@ export default class IdeaView extends React.Component<{}, IdeaViewState> {
                         <NameDescriptionIdea name={this.state.selectedIdea.Name} description={this.state.selectedIdea.Description}/>
                        
 
-                        <StepByStep />
+                        <StepByStep stepByStepPlan={this.state.stepByStepPlan}/>
 
                         
-                            <MarketGapTable  tableData={data} deleteIdeaEntry={this.deleteIdeaEntry} updateCheckTable={this.updateCheckTable} checkboxDict={this.state.checkboxDict}/>
+                            <MarketGapTable  tableData={[{
+                                IdeaEntryId: "",
+                                Name: "No Similar Market Gaps Found... You thought of a good one!",
+                                Description: "",
+                                DomainName: "",
+                                HistoryId: "",
+                                IsGenerated: undefined,
+                
+                            }]} deleteIdeaEntry={this.deleteIdeaEntry} updateCheckTable={this.updateCheckTable} checkboxDict={this.state.checkboxDict}/>
                         </Box>
                     </Box> 
                         }
