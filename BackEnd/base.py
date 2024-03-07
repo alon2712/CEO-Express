@@ -7,6 +7,10 @@ import time
 api = Flask(__name__)
 CORS(api)
 
+
+
+api_key = "API-KEY"
+
 # Just an example on how to use the api
 @api.route('/test')
 def tester():
@@ -52,6 +56,8 @@ def get_new_ideas(new_assistant, client, summary):
     except:
         return []
     
+
+
 """
 This endpoint is used to generate ideas and add them to the database. Gets called with an api call like so:
 http://127.0.0.1:5000/getNewIdeas?Ideas=Swimmer,Surfer&Count=2
@@ -59,7 +65,7 @@ http://127.0.0.1:5000/getNewIdeas?Ideas=Swimmer,Surfer&Count=2
 @api.route('/getNewIdeas', methods=['POST'])
 def getNewIdeas():
     client = OpenAI(
-        api_key=""
+        api_key=api_key
     )
 
     ideas = request.json.get('Ideas')
@@ -85,6 +91,48 @@ def getNewIdeas():
     }
     return response_body
 
+"""
+This endpoint is used to create a step by step for an idea given and IdeaEntryId
+"""
+@api.route('/getStepByStep', methods=['POST'])
+def getStepByStep():
+    name = request.json.get('Name')
+    description = request.json.get('Description')
+    IdeaEntryId = request.json.get('IdeaEntryId')
+
+    returnList = databaseInfo.getStepByStepForIdea(IdeaEntryId)
+    
+    if len(returnList) == 0:
+        prompt =  "Name: " + name +  "\n\nDescription: " + description + "\n\nCreate a step-by-step plan on how to turn this idea into a full-scale business."
+        print(prompt)
+        exc = ""
+        try:
+            client = OpenAI(
+            api_key=api_key
+        )
+                
+            new_assistant = client.beta.assistants.retrieve(
+            assistant_id="asst_pme4bpQs2hRhqH6eLqUtOwYI"
+        )
+            results = get_new_ideas(new_assistant, client, prompt)
+            print(results)
+            i = 0
+            for result in results:         
+                databaseInfo.addStepByStepForIdea(i,IdeaEntryId,result)
+                i+=1
+        except  Exception as e:
+            exc = e
+
+
+        returnList = databaseInfo.getStepByStepForIdea(IdeaEntryId)
+
+        print(returnList)
+    response_body = {
+        'message': json.dumps(returnList, default=str, indent = 2)
+    }
+    return response_body
+
+
 
 """
 This endpoint is used to add an idea entry to the database. Gets called with an api call like so:
@@ -96,7 +144,6 @@ def addIdeaEntry():
     ideaName = request.json.get('IdeaName')
     description = request.json.get('Description')
     success = databaseInfo.addIdeaEntryQuery(description, ideaName, historyId)
-    generateStepByStep(ideaName, description, 1)
     response_body = {
         'message': str(success)
     }
@@ -162,28 +209,5 @@ def accessData(info):
 
 def doComputation(info, name):
     return info
-
-def generateStepByStep(IdeaName, IdeaDescription, ideaId):
-    client = OpenAI(
-        api_key=""
-    )
-
-    try:
-        print('Generating StepByStep')
-        completion = client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[{"role": "user", "content": "You are a new business entrepreneur, with your new business:" + IdeaName + ", which can be summarized as: " + IdeaDescription + ". Please provide a list of the first 10 steps you will take to make this business a reality. Each step should be around 20 to 50 words. This must be returned in this Schema: {'result': [{'step': The first step', 'link': 'useful link'}, {'step': 'The second step', 'link': 'useful link'}, {'step': 'third step', 'link': 'useful link'}]}"}]
-        )
-        print(completion.choices[0].message.content)
-        text = ""
-        for c in completion.choices[0].message.content:
-            if c == "'":
-                text+='"'
-            else:
-                text+=c
-        json_object = json.loads(text)
-        databaseInfo.addStepByStepForIdea(IdeaName, json_object, ideaId)
-    except  Exception as e:
-        print(e)
 
 

@@ -16,4 +16,10 @@ declare global {
         HistoryId: string;
         IsGenerated: number;
 	}
+
+        
+	interface StepByStepEntry {
+                StepNum: number;
+                Description: string;
+                }
 }
