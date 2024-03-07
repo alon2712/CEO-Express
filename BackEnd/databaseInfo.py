@@ -2,6 +2,7 @@ import pyodbc
 import os
 import struct
 import uuid
+import json
 
 from typing import Union
 from fastapi import FastAPI
@@ -103,6 +104,40 @@ def generate_custom_guid():
 def get_conn():
     conn = pyodbc.connect(connection_string)
     return conn
+
+
+def getStepByStepForIdea(IdeaId):
+    returnList = []
+    conn = get_conn()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM StepByStepEntry WHERE IdeaEntryId=? ORDER BY StepNum", IdeaId)
+    columns = [column[0] for column in cursor.description]
+    for row in cursor.fetchall():
+        returnList.append(dict(zip(columns, row)))
+    conn.close()
+    return returnList
+
+def addStepByStepForIdea(IdeaEntryId, stepByStepJson, ideaId):
+    conn = get_conn()
+    cursor = conn.cursor()
+    domain = str(uuid.uuid4())
+
+    try:
+        data = json.dumps(stepByStepJson)
+        print('data: ')
+        print(stepByStepJson['result'])
+        for i in range(len(stepByStepJson['result'])):
+            string = "Step " + str(i) + ": " + stepByStepJson['result'][i]['step'] + '<br\> <br\> <a href ="' + stepByStepJson['result'][i]['link'] + '">' + stepByStepJson['result'][i]['link'] + '</a>'
+            print(string)
+            #cursor.execute("INSERT INTO StepByStepEntry (StepNum, Description, IdeaEntryId) VALUES ( ?, ?, ?)", (i, string, ideaId))
+        conn.commit()
+        conn.close()
+
+    except Exception as e:
+        print("An error occurred:", e)
+        return e
+
+    return True
 
 #This can be changed to test the endpoints
 # def main():
