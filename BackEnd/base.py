@@ -15,7 +15,43 @@ def tester():
     }
     return response_body
 
+def get_new_ideas(new_assistant, client, summary):
+    try:
 
+        thread = client.beta.threads.create()
+
+        message = client.beta.threads.messages.create(
+            thread_id=thread.id,
+            role= "user",
+            content=summary
+        )
+
+        run = client.beta.threads.runs.create(
+            thread_id=thread.id,
+            assistant_id=new_assistant.id
+        )
+        output = ""
+        while run.status != "completed":
+            keep_retrieving_run = client.beta.threads.runs.retrieve(
+                thread_id=thread.id,
+                run_id=run.id
+            )
+            print(f"Run status: {keep_retrieving_run.status}")
+
+            if keep_retrieving_run.status == "completed":
+                print("\n")
+                break
+            elif keep_retrieving_run.status == 'requires_action':
+                print('requires action')
+                print("\n")
+
+                output = keep_retrieving_run.required_action.submit_tool_outputs.tool_calls[0].function.arguments
+                break
+
+        return json.loads(output)["Ideas"]
+    except:
+        return []
+    
 """
 This endpoint is used to generate ideas and add them to the database. Gets called with an api call like so:
 http://127.0.0.1:5000/getNewIdeas?Ideas=Swimmer,Surfer&Count=2
@@ -27,35 +63,24 @@ def getNewIdeas():
     )
 
     ideas = request.json.get('Ideas')
-    count = request.json.get('Count')
     historyId = request.json.get('HistoryId')
 
     exc = ""
     try:
-        t0 = time.time()
-           
-        completion = client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[{"role": "user", "content": "Imagine that you are a highly imaginative entrepreneur, renowned for your ability to innovate beyond the confines of ordinary thought but also keeping things obtainable and senseble. Your extraordinary talent lies not only in your capacity to conceive wholly original ideas, but also in your ability to take existing concepts and ingeniously transform them into something much more abstract and avant-garde, but also simple and createble by the average human. Curiosity, inventiveness, and a fearless disregard for the expected are virtually imprinted in your DNA. Society's norms and conventional wisdom have no hold over your entrepreneurial spirit and business strategies. Given these ideas, " + ideas + ", generate a new screative possible idea that is different, explaining how it would work behind the scenes, in less than 1 sentence (20 words). Provide only a description (NO TITLE)"}],
-        )
-        t1 = time.time()
-        total1 = t1-t0
-        completion2 = client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[{"role": "user", "content": "Given this description :" + completion.choices[0].message.content + ", Generate a name that matches the idea in 20 characters or less"}],
-        )
-        t2 = time.time()
-        total2 = t1-t0
-        print(completion.choices[0].message.content)
-        print(completion2.choices[0].message.content)
-        print(total1)
-        print(total2)
-        databaseInfo.addIdeaEntryQueryGenerated(completion2.choices[0].message.content, completion.choices[0].message.content, historyId)
+        new_assistant = client.beta.assistants.retrieve(
+        assistant_id="asst_8DliSJERNewTbIRmwarOMJgT"
+    )
+        results = get_new_ideas(new_assistant, client, ideas)
+        
+        for result in results:         
+            databaseInfo.addIdeaEntryQueryGenerated(result["new_idea_name"],
+                                                     result[ "new_idea_description"] + " " + result[ "new_idea_reason"], 
+                                                     historyId)
     except  Exception as e:
         exc = e
 
     response_body = {
-        'message': exc
+        'message': results
     }
     return response_body
 
