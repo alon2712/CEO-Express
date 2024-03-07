@@ -100,7 +100,7 @@ export default function MarketGapTable(props: MarketGapTableType) {
     const bgItem = useColorModeValue('white', 'navy.700');
 	return (
 		<>
-		<Card borderRadius='7px' borderColor="black" bg={bgItem} px='24px' mt="70px" py='21px' >
+		<Card borderRadius='7px' borderColor="black" bg={bgItem} px='24px' mt="40px" py='21px' >
             <Flex
                 align={{ sm: 'flex-start', lg: 'center' }}
                 justify='space-between'

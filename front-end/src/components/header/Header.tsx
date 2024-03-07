@@ -128,27 +128,7 @@ export default function Header(props: {currentPage: HistoryType, selectedIdea: I
 						
 					</Link>
 					</Box>
-					{props.selectedIdea !== undefined &&
-					<Box mt="12px">
-					<Link
-						
-						color={mainText}
-						href='#'
-						bg='inherit'
-						borderRadius='inherit'
-						fontSize='16px'
-						_hover={{ color: { mainText } }}
-						_active={{
-							bg: 'inherit',
-							transform: 'none',
-							borderColor: 'transparent'
-						}}
-						_focus={{
-							boxShadow: 'none'
-						}}>
-					
-						{props.selectedIdea.Description}
-</Link></Box>}
+
 				</Box>
 				<Box ms='auto' w='max-content'>
 				{props.selectedIdea !== undefined &&
